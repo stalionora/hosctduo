@@ -8,13 +8,13 @@ using UnityEngine.Events;
 public class CellsTrackerService : IService, ICellsTracker
 {
     //  INTERFACE
-    public UnityEvent<Vector3> OnCellChange;
+    public UnityEvent<Vector3> OnCellChange = new();
+    public UnityEvent OnOutOfBorder = new(); 
 
     //  constructor, which is called from servicebootstrapper
     public CellsTrackerService(CellsMatrixData cellsMatrixData)
     {
         _cellsMatrixData = cellsMatrixData;
-        Initialize();
     }
     public void Initialize()
     {
@@ -27,7 +27,6 @@ public class CellsTrackerService : IService, ICellsTracker
         _currentMatrixPosition = new Vector3();
         _lastPointOnCanvas = new Vector3();
         _offsetOfTheLowestPoint = new Vector3();
-        OnCellChange = new UnityEvent<Vector3>();
 
         if (_cellsMatrixData.TrailwayCentersOfCells[0][0].x < 0 || _cellsMatrixData.TrailwayCentersOfCells[0][0].y < 0)
         {
@@ -35,6 +34,11 @@ public class CellsTrackerService : IService, ICellsTracker
             _offsetOfTheLowestPoint.y = Mathf.Abs(_cellsMatrixData.TrailwayCentersOfCells[0][0].y);
             _offsetOfTheLowestPoint.z = 0;
         }
+    }
+    public void Reset()
+    {
+        _currentMatrixPosition = new Vector3();
+        _lastPointOnCanvas = new Vector3();
     }
 
     // returns world coordinates of cell
@@ -59,25 +63,26 @@ public class CellsTrackerService : IService, ICellsTracker
 
         if ((pointOnCanvas - _lastPointOnCanvas).sqrMagnitude > 0.001f)
         {
-            if ((pointOnCanvas.x >= _cellsMatrixData.TrailwayCentersOfCells[0][0].x - _cellsMatrixData.CellSize.x / 2) && (pointOnCanvas.x < _cellsMatrixData.TrailwayCentersOfCells[_cellsMatrixData.Height - 1][_cellsMatrixData.Width - 1].x + _cellsMatrixData.CellSize.x / 2))
-            {
-                if ((pointOnCanvas.y >= _cellsMatrixData.TrailwayCentersOfCells[0][0].y - _cellsMatrixData.CellSize.y / 2) && (pointOnCanvas.y < _cellsMatrixData.TrailwayCentersOfCells[_cellsMatrixData.Height - 1][_cellsMatrixData.Width - 1].y + _cellsMatrixData.CellSize.y / 2))
-                {
+            if ((pointOnCanvas.x >= _cellsMatrixData.TrailwayCentersOfCells[0][0].x - _cellsMatrixData.CellSize.x / 2) && (pointOnCanvas.x < _cellsMatrixData.TrailwayCentersOfCells[_cellsMatrixData.Height - 1][_cellsMatrixData.Width - 1].x + _cellsMatrixData.CellSize.x / 2)){
+                if ((pointOnCanvas.y >= _cellsMatrixData.TrailwayCentersOfCells[0][0].y - _cellsMatrixData.CellSize.y / 2) && (pointOnCanvas.y < _cellsMatrixData.TrailwayCentersOfCells[_cellsMatrixData.Height - 1][_cellsMatrixData.Width - 1].y + _cellsMatrixData.CellSize.y / 2)){
                     var coordinateByY = pointOnCanvas.y - _cellsMatrixData.TrailwayCentersOfCells[0][0].y;
                     var coordinateByX = pointOnCanvas.x - _cellsMatrixData.TrailwayCentersOfCells[0][0].x;
-                    _number = Mathf.FloorToInt((coordinateByX + _cellsMatrixData.CellSize.x / 2)/ _cellsMatrixData.CellSize.x) + Mathf.FloorToInt(coordinateByY / _cellsMatrixData.CellSize.y) * _cellsMatrixData.Width;  //  calculating 
+                    _number = Mathf.FloorToInt((coordinateByX + _cellsMatrixData.CellSize.x / 2) / _cellsMatrixData.CellSize.x) + Mathf.FloorToInt(coordinateByY / _cellsMatrixData.CellSize.y) * _cellsMatrixData.Width;  //  calculating 
                     _lastPointOnCanvas = pointOnCanvas;
 
                     CalculateCurrentCoordinates();
                     OnCellChange.Invoke(_currentMatrixPosition);
                     Debug.Log($"current cell have number {_number}");   //  WRONG  BEHAVIOUR
                 }
-                else
+                else{
                     Debug.Log("¬ыход за пределы пол€ по y");
-
+                    OnOutOfBorder.Invoke();
+                }
             }
-            else
+            else{
                 Debug.Log("выход за пределы пол€ по x");
+                    OnOutOfBorder.Invoke();
+            }
         }
 
     }
@@ -91,6 +96,11 @@ public class CellsTrackerService : IService, ICellsTracker
         Debug.Log($"{_number / (_cellsMatrixData.Width)} and  {_number % _cellsMatrixData.Width}");
         if (_number >=0 &_number < _cellsMatrixData.Width * _cellsMatrixData.Height)
             _currentMatrixPosition = _cellsMatrixData.TrailwayCentersOfCells[_number / _cellsMatrixData.Width][(_number % _cellsMatrixData.Width)];
+    }
+
+    public UnityEvent GetOnOutOfBorder()
+    {
+        return OnOutOfBorder;
     }
 
     //fields

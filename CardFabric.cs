@@ -1,27 +1,42 @@
 using UnityEngine;
 
+//////////////////////////
+// Dependent from DragHandler
+//////////////////////////
 public class CardFabric: IFabric {
-
-	public CardFabric() { }
-	public CardFabric(GameObject prefab, Transform canvas) {
+	public CardFabric(GameObject prefab, RectTransform canvas = null) {
 		_cardPrefab = prefab;
-		_handCanvas = canvas;
+        if (canvas != null)
+			_handCanvas = canvas;
 	}
 
 	public GameObject Create(Vector3 pointToPlace){
 		GameObject newCard;
 		if (_cardPrefab != null){
-			newCard = GameObject.Instantiate(_cardPrefab);
-		}
+			if (_handCanvas != null) 
+				newCard = GameObject.Instantiate(_cardPrefab, _handCanvas);
+			else 
+				newCard = GameObject.Instantiate(_cardPrefab);
+			newCard.GetComponent<UnityEngine.UI.Image>().raycastTarget = true;
+            //newCard.GetComponentInChildren<UnityEngine.UI.Image>().raycastTarget = false;
+        }
 		else{
-			newCard = new GameObject();
+            Debug.LogError("CardFabric: _cardPrefab is null");
+            newCard = new GameObject();
 			newCard.AddComponent<SpriteRenderer>();
 		}
-		newCard.AddComponent<CardDragHandler>();
-		newCard.transform.SetParent(_handCanvas);
+		CardDragHandler dragHandler = newCard.GetComponent<CardDragHandler>();
+		if (dragHandler == null)
+		{
+			dragHandler = newCard.AddComponent<CardDragHandler>();
+			dragHandler = new CardDragHandler();
+		}
+		//var movementHandler = newCard.AddComponent<CardMovementService>();
+		dragHandler.Initialize();
+		//newCard.transform.SetParent(_handCanvas, false);
 		return newCard;
 	}
 
-	private GameObject _cardPrefab;
-	private Transform _handCanvas;
+    private GameObject _cardPrefab;
+	private RectTransform _handCanvas;
 }

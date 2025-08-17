@@ -10,13 +10,16 @@ public class Trailway : MonoBehaviour
 {
     [SerializeField]
     private CellsMatrixData _cellsMatrixData;
-   
+
     //public RectTransform Rectangle { get { return _rectangle; } }
     /////////////////////////////////////////////////////////////////////////////////////////////
     private void Awake() // receiving 
     {
         _cellsMatrixData.FieldRectSize = new Vector3[4];
         GameObject.Find(_cellsMatrixData.ParentCanvas).GetComponent<RectTransform>().GetWorldCorners(_cellsMatrixData.FieldRectSize);
+        //for (int i = 0; i < 4; ++i){
+        //    _cellsMatrixData.FieldRectSize[i] *= GameObject.Find("Canvas").GetComponent<RectTransform>().localScale.x; 
+        //}
     }
     public void Initialize()
     {
@@ -48,7 +51,6 @@ public class Trailway : MonoBehaviour
             {
                 // distance is > 0?
                 _cellsMatrixData.TrailwayCentersOfCells[y][i] = new Vector3 (widthDistance * (i) + startPointX + _cellsMatrixData.SpacingHorizontal * i, heightDistance * (y) + startPointY + _cellsMatrixData.SpacingVertical * y, GetComponentInParent<Canvas>().transform.position.z);
-                //Debug.Log($"TrailwayCentersOfCells[{y}][{i}] = {_cellsMatrixData.TrailwayCentersOfCells[y][i]}");
             }
             //Debug.Log($"ֲûסמעא סעמכבצא = {_cellsMatrixData.TrailwayCentersOfCells[y].Length}");
         }

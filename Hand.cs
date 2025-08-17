@@ -1,86 +1,62 @@
 using UnityEngine;
-//////////////////////////
-// Dependent from GameService, each service
-//////////////////////////
-public class Hand : MonoBehaviour {
+
+public class Hand: MonoBehaviour {
     //  interface
     [SerializeField]
-    private CardSize CardSize;
+    private CardSize _cardSize;
     [SerializeField]
-    private int HandSize;
+    private int _size;
     [SerializeField]
-    private float OffsetBetweenCards;
+    private float _offsetBetweenCards;
     [SerializeField]
-    private float RightLeftShift;
-    
-    public IFabric CardFabric { get {return _cardFabric; } set { _cardFabric = value; } }
-    
+    private float _leftShift;
 
-    public void Initialize()
-    {
-        Debug.Log("Hand initialization");
-        if (CardSize == null || _cardFabric == null)
-            Debug.Log("SerializeFields was not assigned");
-        _handCorners = new Vector3[4];
-        for (int i = 0; i < 4; ++i)
-            _handCorners[i] = new Vector3();    //  нужно, а то будут nulls
-        GetComponentInParent<RectTransform>().GetWorldCorners(_handCorners);
-        //  determination of the bounds
-        //  -s- ... -c- o -c- o -c- ... -s-     -->     ... -c- o -c- ...
-        _overflownHandSize = (int)( (_handCorners[3].x - _handCorners[0].x - RightLeftShift * 2) / (CardSize.CardScale.x / 2) );
-        _fullHandSize = (int)((_handCorners[3].x - _handCorners[0].x - RightLeftShift * 2) / (CardSize.CardScale.x + OffsetBetweenCards));  //  меньше на один оффсет чем должно быть 
-        if (CardSize.CardScale.x / 2 * HandSize + RightLeftShift * 2 > _handCorners[3].x - _handCorners[0].x)    //  прервать выполнение, если карт больше чем длина пространства деленна€ на ширину одной карты
-            Debug.Log("Ѕольше карт чем можно вместить в руку");
-        // var overflownedoffset = (CardSize.CardScale.x / 2 ) / (_overflownHandSize - _fullHandSize)
-        //  distribute cards
-        FindMidOfTheHand();
-        CardsPool = new GameObject[HandSize];
-        Vector3 midCoordinateOfTheHand = new Vector3();
-        for (int i = 0; i < HandSize; ++i)  //  creating card and placing it
-        {
-            Debug.Log($"next free position = {_nextFreePositionX} position y = {_positionY} distance between centers of cells = {_distanceBetweenCentersOfCards} \n full hand size = {_fullHandSize} overflown hand size = {_overflownHandSize}");
-            CardsPool[i] = _cardFabric.Create(new Vector3(_nextFreePositionX, _positionY, _handCorners[0].z));
-            if (CardSize.CardScale.x * i * (OffsetBetweenCards - 1) + RightLeftShift * 2 > _handCorners[3].x - _handCorners[0].x)
-            {
-                OffsetBetweenCards = (i - _fullHandSize ) * (CardSize.CardScale.x / 2) / (_overflownHandSize - _fullHandSize);
-                _nextFreePositionX -= (CardSize.CardScale.x / 2) / (_overflownHandSize - _fullHandSize);
-            }
-            else
-            {
-                _nextFreePositionX += _distanceBetweenCentersOfCards;
-            }
-            Replace(midCoordinateOfTheHand.x - (i - 1) * _distanceBetweenCentersOfCards - _distanceBetweenCentersOfCards / 2 , i);
-        }
-    }
+    public CardSize CardSize{ get {return _cardSize; } }
+    public int HandSize { get {return _size;} }
+    public float OffsetBetweenCards { get {return _offsetBetweenCards; } }
+    public float LeftShift { get {return _leftShift; } }
+    //
+    //public Vector3 MidCoordinate {  get; }
+    //public float ActiveAreaSize { get; }
+    //public int OverflownSize { get; }
+    //public int FullSize { get; }
+    //public float DistanceBetweenCentersOfCards { get; };
+    //public void Initialize() {
+    //    Debug.Log("HandDistributor initialization");
 
-    //private float FindPlaceForCard() {
-    //    //  проверка превышает ли размер спрайта умноженный на размер пула границы руки 
-    //    return new float();
-        
+    //    //  invariant
+    //    if (CardSize == null)
+    //        Debug.Log("SerializeFields was not assigned");
+    //    //  is used for starting point to add distances
+    //    var rect = GetComponent<RectTransform>();
+
+    //    //  total area size
+    //    _activeAreaSize = rect.rect.width;
+    //    Debug.Log("rect.width " + _activeAreaSize);
+
+    //    //  determination of the card amount related bounds
+    //    //  -s- ... -c- o -c- o -c- ... -s-     -->     ... -c- o -c- ...
+    //    _overflownSize = (int)((_activeAreaSize - LeftShift * 2) / (CardSize.CardScale.x / 2));
+    //    _fullSize = (int)((_activeAreaSize - LeftShift * 2 + OffsetBetweenCards) / (CardSize.CardScale.x + OffsetBetweenCards));  // 
+    //    if (CardSize.CardScale.x / 2 * HandSize + LeftShift * 2 > _activeAreaSize)    // interrupt, if number of cards is greater than length of area / half card width
+    //        Debug.Log("Ѕольше карт чем можно вместить в руку");
+
+    //    //
+    //    _distanceBetweenCentersOfCards = CardSize.CardScale.x + OffsetBetweenCards;
+
+    //    //  finding mid of the hand
+    //    //_midCoordinateOfTheHand.x = (rect.rect.xMin + _activeAreaSize) / 2;   //  origin + half of the area width -> coordinate of mid
+    //    _midCoordinate.x = rect.rect.xMin + rect.rect.width / 2;   //  origin + half of the area width -> coordinate of mid
+    //    _midCoordinate.y = rect.rect.yMin + rect.rect.height / 2;
+
     //}
 
-    private void FindMidOfTheHand() //  initializates 2 variable which represents coordinates in the middle of the hand area
-    {
-        _nextFreePositionX = _handCorners[0].x + (_handCorners[3].x - _handCorners[0].x) / 2;   //  origin + half of the area width -> coordinate of mid
-        _positionY = _handCorners[1].y - _handCorners[0].y;  
-    }
-
-    private void Replace(float startingPoint, int amountOfCards) //  receive starting point on the x axis and put card every distancebetweencenters
-    {
-        for (int i = 0; i < amountOfCards; ++i)
-        {
-            CardsPool[i].transform.position = new Vector3 (startingPoint + _distanceBetweenCentersOfCards * i, CardsPool[i].transform.position.y, CardsPool[i].transform.position.z);
-        }
-    }
-
-    //  realization
-    private GameObject[] CardsPool;
-    private Vector3[] _handCorners;
-    private IFabric _cardFabric;
-    //
-    private float _nextFreePositionX = 0.0f;
-    private float _positionY = 0.0f;
-    private float _distanceBetweenCentersOfCards = 0.0f;
-    private int _fullHandSize = 0;  // full-fledjed spacing
-    private int _overflownHandSize = 0;
+    ////  
+    //private Vector3 _midCoordinate = new();
+    
+    ////  realization
+    //private float _activeAreaSize = 0;
+    //private int _overflownSize = 0;
+    //private int _fullSize = 0;
+    //private float _distanceBetweenCentersOfCards = 0;
 }
