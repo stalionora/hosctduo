@@ -58,7 +58,7 @@ namespace Representation
             tmpRect.anchoredPosition = localPoint;
             _imageCollection[_counter].GetComponent<UnityEngine.UI.Image>().sprite = _debugImageSource.sprite;
             // 4. log 
-            UnityEngine.Debug.Log(_counter + " " + _debugMessage + point + " --- " + tmpRect.anchoredPosition);
+            Debug.Log(_counter + " " + _debugMessage + point + " --- " + tmpRect.anchoredPosition);
             ++_counter;
         }
         //public void SetDebugImage(ref CellDebugRepresentation  ptr) 

@@ -1,9 +1,12 @@
 using UnityEngine;
 using Representation;
+using UnityEngine.EventSystems;
 
 public class SceneBootrstrapper : MonoBehaviour
 {
     //  Scriptable objects
+    [SerializeField]
+    private HandScale HandSize;
     [SerializeField]
     private CardSize CardSize;  
     [SerializeField]
@@ -60,12 +63,13 @@ public class SceneBootrstrapper : MonoBehaviour
 
         //  create players
 
-        //  hands
-        Hand hand = CardsHand.GetComponent<Hand>();
+        //  preparing shit for hands
+        //HandScale hand = CardsHand.GetComponent<HandScale>();
+        HandScale hand = this.HandSize;
         HandDistributor dealer = CardsHand.GetComponent<HandDistributor>();
         dealer.Initialize();    //  inherited from image in nested canvas
         
-        //  preparing shit
+        //  hands
         CardPool cardPool = new CardPool();
         cardPool.SetPool(hand.HandSize * 3);
 
@@ -77,7 +81,7 @@ public class SceneBootrstrapper : MonoBehaviour
             if (cardPool.GetPool()[i] == null)
                 Debug.LogError($"Card #{i} is null");
             //  events which depending from actual cards
-            //cardPool.GetPool()[i].GetComponent<CardDragHandler>().OnCardDragStart.AddListener();
+            cardPool.GetPool()[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);
         }
 
         for (int i = hand.HandSize; i < cardPool.Size; ++i)

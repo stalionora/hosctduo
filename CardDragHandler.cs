@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 //  objects schouldnt get access to movement simultaneously  
 //  dependent from CardMovomentService 
-public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     //  events
     public UnityEvent<PointerEventData> OnCardDragStart = new();
@@ -31,12 +31,11 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void OnBeginDrag(PointerEventData eventData) {
         Debug.Log($"Begin drag");
         movementService.SetCurrentCard(GetComponentInParent<RectTransform>());
-        OnCardDragStart.Invoke(eventData);
         movementService.OnBeginDrag(eventData.position);
+        OnCardDragStart.Invoke(eventData);
     }
 
     public void OnDrag(PointerEventData eventData) {
-        Debug.Log($"dragging");
         movementService.OnDrag(eventData.position);
     }
 
@@ -45,10 +44,7 @@ public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         OnCardDragEnd.Invoke(eventData);
         movementService.OnEndDrag(eventData.position);
     }
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        Debug.Log("CLICK DETECTED");
-    }
 
+    //  
     private CardMovementService movementService;
 }

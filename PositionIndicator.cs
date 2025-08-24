@@ -3,6 +3,7 @@
 //  Depending only on icellstracker and cellsatrixdata
 
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PositionIndicator
 {
@@ -34,19 +35,24 @@ public class PositionIndicator
         _cellsTracker.GetOnCellChange().RemoveListener(Reset);
     }
 
-    private void Hide() {    // -> waitforcellstracker 
+    public void Hide() {    // -> waitforcellstracker 
         _prefab.SetActive(false);
     }
 
-    
     public void ChangeCurrentPosition(Vector3 newPosition)
     {
         _prefab.transform.position = newPosition;
     }
 
+    public void WaitActivationFromEvent(PointerEventData useless) {
+        Hide();
+        WaitForCellsTracker();
+    }
+
     private void WaitForCellsTracker() {
         _cellsTracker.GetOnCellChange().AddListener(Reset);
     }
+
 
     //  realization
     private ICellsTracker _cellsTracker;

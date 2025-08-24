@@ -30,7 +30,9 @@ public class CardMovementService: IService, IMovementService
     }
 
     public void SetCurrentCard(RectTransform cardTransform) {
-        _currentCard = cardTransform;
+        _currentCard = cardTransform;   //  returns card in the hand, when card is thrown out of border of trailway 
+        _originalPosition = _currentCard.anchoredPosition;
+        Debug.Log($"original position = {_originalPosition}");
     }
 
     //  movement proceeding
@@ -42,14 +44,14 @@ public class CardMovementService: IService, IMovementService
         //_ray.direction = Vector3.forward;
         if (_planeOfCanvas.Raycast(_ray, out float enterDragPlaneRay) == true)  //  mouse offset calculation
         {
-            _mouseOffset = (_currentCard.transform.position - _ray.GetPoint(enterDragPlaneRay));
+            _mouseOffset = (_currentCard.gameObject.transform.position - _ray.GetPoint(enterDragPlaneRay));
             _mouseOffset.z = 0;
         }
         else
             throw new Exception("offset not determined");
         //  activating services, before they was starting to use in onDrag
         //  takong up the card 
-        _currentCard.transform.position = new Vector3(_currentCard.transform.position.x / _fructumRatio, _currentCard.transform.position.y / _fructumRatio, ZPointOnDrag);
+        _currentCard.gameObject.transform.position = new Vector3(_currentCard.gameObject.transform.position.x / _fructumRatio, _currentCard.gameObject.transform.position.y / _fructumRatio, ZPointOnDrag);
         // 1! CellsTrackerService.Track(this)  //type = card
     }
 
@@ -61,7 +63,7 @@ public class CardMovementService: IService, IMovementService
         if (_planeOnDrag.Raycast(_ray, out float enterDragPlane) == true)    //interaction with a ray
         {
             //_cellsTracker.CalcuateCurrentCell(_ray.GetPoint(_canvasPosition.z));
-            _currentCard.transform.position = _ray.GetPoint(enterDragPlane) + _mouseOffset;   //world point position
+            _currentCard.gameObject.transform.position = _ray.GetPoint(enterDragPlane) + _mouseOffset;   //world point position
         }
         if (_planeOfCanvas.Raycast(_ray, out float enterCanvasPlane) == true)
         {
@@ -71,7 +73,20 @@ public class CardMovementService: IService, IMovementService
 
     public void OnEndDrag(Vector3 uselessPosition)
     {
-        _currentCard.transform.position = _cellsTracker.GetCurrentCellCoordinates();
+        if (_cellsTracker.GetCurrentCellCoordinates() == null)
+        {  //  returns card in the hand
+            Debug.Log($"origin is out of border of trailway");
+            Debug.Log($"original position = {_originalPosition}");
+            _currentCard.anchoredPosition = _originalPosition;
+            Debug.Log($"current position = {_currentCard.position}");
+            return;
+        }
+        else
+        {
+            Debug.Log($"origin is in the trailway");
+            _currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
+            Debug.Log($"current position = {_currentCard.position}");
+        }
     }
 
     private void CalculateFructumRatio()
@@ -92,13 +107,14 @@ public class CardMovementService: IService, IMovementService
     private Plane _planeOnDrag = new Plane();
     private Plane _planeOfCanvas = new Plane();
     private Ray _ray = new Ray();   //direct rays
+    private RectTransform _currentCard;
     private Vector3 _canvasPosition;    //canvas surface
     private Vector3 _mouseOffset = new Vector3();   //offset before drag
-    private RectTransform _currentCard;
+    private Vector3 _originalPosition = new Vector3();   //position to return card before drag
     //  dependencies
     private ICellsTracker _cellsTracker;
     private CellsMatrixData _cellsMatrix;
     //
-    private float _fructumRatio = 0.0f;
+    private float _fructumRatio = 1.0f;
     private float ZPointOnDrag = 40.0f;
 }
