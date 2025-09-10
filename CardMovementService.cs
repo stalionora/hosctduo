@@ -26,12 +26,14 @@ public class CardMovementService: IService, IMovementService
         //    ZPointOfPlane = _canvasPosition.z;
         _cellsTracker = GameService.GetService<ICellsTracker>();
         Assert.IsNotNull(_cellsTracker);
+        _cellsTracker.GetOnOutOfBorder().AddListener(ReturnInHand);
+        _cellsTracker.GetOnCellChange().AddListener(PlaceOnFieldOnEndDrag);
         Debug.Log("Cells initialization service");
     }
 
     public void SetCurrentCard(RectTransform cardTransform) {
         _currentCard = cardTransform;   //  returns card in the hand, when card is thrown out of border of trailway 
-        _originalPosition = _currentCard.anchoredPosition;
+        _originalPosition = _currentCard.position;
         Debug.Log($"original position = {_originalPosition}");
     }
 
@@ -71,22 +73,14 @@ public class CardMovementService: IService, IMovementService
         }
     }
 
+    //  “”“  ¿–“¿ ƒŒÀ∆Õ¿ ”ƒ¿Àﬂ“‹—ﬂ
     public void OnEndDrag(Vector3 uselessPosition)
     {
-        if (_cellsTracker.GetCurrentCellCoordinates() == null)
-        {  //  returns card in the hand
-            Debug.Log($"origin is out of border of trailway");
-            Debug.Log($"original position = {_originalPosition}");
-            _currentCard.anchoredPosition = _originalPosition;
-            Debug.Log($"current position = {_currentCard.position}");
-            return;
-        }
+        Debug.Log($"in");
+        if (_returnInHand)
+            _currentCard.gameObject.transform.position = _originalPosition;
         else
-        {
-            Debug.Log($"origin is in the trailway");
             _currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
-            Debug.Log($"current position = {_currentCard.position}");
-        }
     }
 
     private void CalculateFructumRatio()
@@ -101,6 +95,14 @@ public class CardMovementService: IService, IMovementService
             _fructumRatio = 1.0f;
     }
 
+    private void ReturnInHand()
+    {
+        _returnInHand = true;
+    }
+
+    private void PlaceOnFieldOnEndDrag(Vector3 point) {
+        _returnInHand = false;
+    }
 
     //  implementation shit
     private Camera _mainCamera;
@@ -111,6 +113,7 @@ public class CardMovementService: IService, IMovementService
     private Vector3 _canvasPosition;    //canvas surface
     private Vector3 _mouseOffset = new Vector3();   //offset before drag
     private Vector3 _originalPosition = new Vector3();   //position to return card before drag
+    private bool _returnInHand = true;
     //  dependencies
     private ICellsTracker _cellsTracker;
     private CellsMatrixData _cellsMatrix;

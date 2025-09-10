@@ -54,6 +54,7 @@ public class HandDistributor : MonoBehaviour {
         {
             // ????????????????
             cards[i].transform.SetParent(transform, false);
+            cards[i].SetActive(true);
             cards[i].name = $"Card#{i}";
             Replace(cards, _midCoordinateOfTheHand.x - ((i + 1) * this.HandScale.CardSize.CardScale.x + (i * this.HandScale.OffsetBetweenCards))/2 + this.HandScale.CardSize.CardScale.x / 2, i);
             //Replace(_midCoordinateOfTheHand.x - (i / 2) * _distanceBetweenCentersOfCards - CardSize.CardScale.x / 2 * (i % 2) + CardSize.CardScale.x / 2 - OffsetBetweenCards / 2 * ((i + 1) % 2), i);
@@ -65,7 +66,7 @@ public class HandDistributor : MonoBehaviour {
                 _distanceBetweenCentersOfCards -= (this.HandScale.CardSize.CardScale.x / 2 + this.HandScale.OffsetBetweenCards) / (this.HandScale.HandSize - _fullHandSize);
             }
         }
-        Debug.Log($"position y = {_midCoordinateOfTheHand.y} \t full hand size = {_fullHandSize} \t overflown hand size = {_overflownHandSize}");
+        //Debug.Log($"position y = {_midCoordinateOfTheHand.y} \t full hand size = {_fullHandSize} \t overflown hand size = {_overflownHandSize}");
         //Replace(_midCoordinateOfTheHand.x - (HandSize - 1) * (_distanceBetweenCentersOfCards)/2f, HandSize);
     }
 

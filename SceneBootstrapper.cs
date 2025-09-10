@@ -1,19 +1,24 @@
 using UnityEngine;
-using Representation;
 using UnityEngine.EventSystems;
+
+////////////////////////////////////////////////////////
+//  Managing creatiion of objects and corresponding shit
+////////////////////////////////////////////////////////
 
 public class SceneBootrstrapper : MonoBehaviour
 {
     //  Scriptable objects
     [SerializeField]
-    private HandScale HandSize;
-    [SerializeField]
     private CardSize CardSize;  
     [SerializeField]
     private CellsMatrixData CellsMatrix;
+    [SerializeField]
+    private HandScale HandSize;
     //  Prefabs
     [SerializeField]
     private GameObject CardPrefab;
+    [SerializeField]
+    private GameObject FigurePrefab;
     [SerializeField]
     private GameObject PositionIndicatorOfCardPrefab;
 
@@ -22,8 +27,9 @@ public class SceneBootrstrapper : MonoBehaviour
         Debug.Log("Scene bootsrapper was started");
         
         //  hands
-        var CardsHand = GameObject.Find("CardsHand");
-        if (CardsHand == null)
+        var PlayersHand = GameObject.Find("PlayersHand");
+        _playersHand = PlayersHand.GetComponent<Hand>();
+        if (_playersHand == null)
         {
             Debug.Log("not determinated fields in hand script");
             return;
@@ -60,38 +66,62 @@ public class SceneBootrstrapper : MonoBehaviour
         //            representation.PlaceCellOnPoint(CellsMatrix.TrailwayCentersOfCells[y][i]);
         //}
 
-
+        //  preparing shit
+        IFabric cardFabric = new CardFabric(CardPrefab);
+        IFabric figureFabric = new FigureFabric(FigurePrefab, GameObject.Find(CellsMatrix.ParentCanvas).GetComponent<RectTransform>());
         //  create players
 
-        //  preparing shit for hands
-        //HandScale hand = CardsHand.GetComponent<HandScale>();
-        HandScale hand = this.HandSize;
-        HandDistributor dealer = CardsHand.GetComponent<HandDistributor>();
-        dealer.Initialize();    //  inherited from image in nested canvas
-        
-        //  hands
-        CardPool cardPool = new CardPool();
-        cardPool.SetPool(hand.HandSize * 3);
+        //  for hands
+        //HandScale hand = PlayersHand.GetComponent<HandScale>();
+        _dealer = PlayersHand.GetComponent<HandDistributor>();
+        _dealer.Initialize();    //  inherited from image in nested canvas
 
-        //  cards
-        IFabric cardFabric = new CardFabric(CardPrefab);
-        for (int i = 0; i < cardPool.Size; ++i)
-        {
-            cardPool.GetPool()[i] = cardFabric.Create(new Vector3());
-            if (cardPool.GetPool()[i] == null)
+        //  hands
+        _playersHand.Cards = new ObjectPool<Card>(HandSize.HandSize).GetPool();
+        _cardPool = new ObjectPool<Card>(HandSize.HandSize * 3);
+
+        // for figures
+
+        //  figures
+        _figurePool = new ObjectPool<Figure>(HandSize.HandSize * 3);
+        _figurePlacer = new FigureDistributor(_figurePool, _cardPool);
+        
+        //  pools creation
+        var currentCard = _cardPool.GetPool();
+        for (int i = 0; i < _cardPool.Size; ++i){
+            //  cards
+            currentCard[i] = cardFabric.Create(new Vector3());
+            if (currentCard == null)
                 Debug.LogError($"Card #{i} is null");
             //  events which depending from actual cards
-            cardPool.GetPool()[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);
+            currentCard[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
+            var _dataObserver = currentCard[i].AddComponent<FigureDataObserver>();
+            _dataObserver.OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
+            currentCard[i].GetComponent<CardDragHandler>().OnCardDragStart.AddListener(_dataObserver.StartObserving); //  pushing card data
+            GameService.GetService<ICellsTracker>().GetOnOutOfBorder().AddListener(_dataObserver.StopObserving);
+            currentCard[i].name = $"Card #{i}";
+            
+            //  figures
+            _figurePool.GetPool()[i] = figureFabric.Create(new Vector3());
+            _figurePool.GetPool()[i].name = $"Figure #{i}";
         }
+        _playersHand.Cards = _cardPool.GetPool();
 
-        for (int i = hand.HandSize; i < cardPool.Size; ++i)
-        {
-            cardPool.GetPool()[i].SetActive(false);
-        }
-
+        //  figures mechanics
         Debug.Log("Cards distributing");
-        dealer.DistributeCards(cardPool.GetPool());
+        _dealer.DistributeCards(_cardPool.GetPool());
+        
+        //  atp all figures are disabled, cards[] of HandSize.HandSize laying in the hand and the other are disabled too
+        
         Debug.Log("Scene was completed");
 
     }
+
+    //  contiguous things
+    //private FigureDataObserver _dataObserver;
+    private FigureDistributor _figurePlacer;
+    private Hand _playersHand;
+    private HandDistributor _dealer;
+    private ObjectPool<Card> _cardPool;
+    private ObjectPool<Figure> _figurePool;
 }

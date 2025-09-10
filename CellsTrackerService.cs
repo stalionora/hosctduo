@@ -9,7 +9,7 @@ public class CellsTrackerService : IService, ICellsTracker
 {
     //  INTERFACE
     public UnityEvent<Vector3> OnCellChange = new();
-    public UnityEvent OnOutOfBorder = new(); 
+    public UnityEvent OnOutOfBorder = new();
 
     //  constructor, which is called from servicebootstrapper
     public CellsTrackerService(CellsMatrixData cellsMatrixData)
@@ -30,18 +30,13 @@ public class CellsTrackerService : IService, ICellsTracker
             _offsetOfTheLowestPoint.z = 0;
         }
     }
-    public void Reset()
-    {
-        _currentMatrixPosition = new Vector3();
-        _lastPointOnCanvas = new Vector3();
-    }
 
     // returns world coordinates of cell
     public Vector3 GetCurrentCellCoordinates()
     {
         return _currentMatrixPosition;
     }
-    public UnityEvent<Vector3> GetOnCellChange() 
+    public UnityEvent<Vector3> GetOnCellChange()
     {
         return OnCellChange;
     }
@@ -73,11 +68,9 @@ public class CellsTrackerService : IService, ICellsTracker
 
                     CalculateCurrentCoordinates();
                     OnCellChange.Invoke(_currentMatrixPosition);
-                    //Debug.Log($"current cell have number {_number}");   //  WRONG  BEHAVIOUR
                     return;
                 }
             }
-            this.Reset();
             OnOutOfBorder.Invoke();
         }
     }

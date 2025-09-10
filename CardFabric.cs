@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 //////////////////////////
@@ -5,16 +6,18 @@ using UnityEngine;
 //////////////////////////
 public class CardFabric: IFabric {
 	public CardFabric(GameObject prefab, RectTransform canvas = null) {
+		Assert.IsNotNull(prefab);
 		_cardPrefab = prefab;
-        if (canvas != null)
-			_handCanvas = canvas;
+		_handCanvas = canvas;
 	}
 
 	public GameObject Create(Vector3 pointToPlace){
 		GameObject newCard;
 		if (_cardPrefab != null){
-			if (_handCanvas != null) 
+			if (_handCanvas != null){ 
 				newCard = GameObject.Instantiate(_cardPrefab, _handCanvas);
+				//newCard.transform.SetParent(_handCanvas, false);
+			}
 			else 
 				newCard = GameObject.Instantiate(_cardPrefab);
 			newCard.GetComponent<UnityEngine.UI.Image>().raycastTarget = true;
@@ -33,8 +36,8 @@ public class CardFabric: IFabric {
 		}
 		//var movementHandler = newCard.AddComponent<CardMovementService>();
 		dragHandler.Initialize();
-		//newCard.transform.SetParent(_handCanvas, false);
-		return newCard;
+		newCard.SetActive(false);
+        return newCard;
 	}
 
     private GameObject _cardPrefab;
