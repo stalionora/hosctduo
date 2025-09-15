@@ -3,27 +3,40 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 ////////////////////////////////////////
+//  Pushes gameobject of dragged card(for figure distributor)
 //  Dependent from drag handler, gameService, icellstrackerservice
 ////////////////////////////////////////
 class FigureDataObserver : MonoBehaviour {
 
     public UnityEvent<GameObject> OnPushingData = new();
-
-    public void StartObserving(PointerEventData data) {
-        var dragHandler = GetComponent<CardDragHandler>();
-        dragHandler.OnCardDragEnd.AddListener(PushData);
+    
+    private void Start(){
+        _dragHandler = GetComponent<CardDragHandler>();
+        _dragHandler.OnCardDragStart.AddListener(StartPushingOnDragEnd); //  pushing card data
+        _dragHandler.OnCardDragEnd.AddListener(StopObserving);
     }
-    public void StopObserving() {
-        var dragHandler = GetComponent<CardDragHandler>();
-        dragHandler.OnCardDragEnd.RemoveListener(PushData);
+    public void StartPushingOnDragEnd(PointerEventData data) {
+        GameService.GetService<ICellsTracker>().GetOnOutOfBorder().AddListener(StopPushingOnOutOfBorder);
+        _dragHandler.OnCardDragEnd.AddListener(PushData);
+    }
+    public void StopPushingOnOutOfBorder() {
+        StopObserving(null);
         GameService.GetService<ICellsTracker>().GetOnCellChange().AddListener(RestartObserving);
-    }
-    private void RestartObserving(Vector3 shit) {
-        StartObserving(null);
-        GameService.GetService<ICellsTracker>().GetOnCellChange().RemoveListener(RestartObserving);
     }
     public void PushData(PointerEventData data)
     {
         OnPushingData.Invoke(this.transform.gameObject);    //  putting 
     }
+    private void StopObserving(PointerEventData data = null) { 
+        //_dragHandler.OnCardDragStart.RemoveListener(StartPushingOnDragEnd); //  pushing card data
+        GameService.GetService<ICellsTracker>().GetOnOutOfBorder().RemoveListener(StopPushingOnOutOfBorder);
+        _dragHandler.OnCardDragEnd.RemoveListener(PushData);
+    }
+    private void RestartObserving(Vector3 shit) {
+        StartPushingOnDragEnd(null);
+        GameService.GetService<ICellsTracker>().GetOnCellChange().RemoveListener(RestartObserving);
+    }
+
+    //  fields
+    private CardDragHandler _dragHandler;
 }

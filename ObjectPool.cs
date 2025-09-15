@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
-
+//  Game _objects managing
+//  хглемхрэ сопюбкемхе пеяспянл
 public class ObjectPool<T> {
     public int Size { get {return _size; } set {_size = value; } }
 
@@ -12,7 +13,7 @@ public class ObjectPool<T> {
     }
     ~ObjectPool() {
         for (int i = 0; i < _size; ++i)
-            GameObject.Destroy(objects[i]);
+            GameObject.Destroy(_objects[i]);
         
     }
 
@@ -20,19 +21,23 @@ public class ObjectPool<T> {
             Debug.Log($"setting pool[{size}]");
         //  card pool distributing
         if (size > _size){
-            objects = new GameObject[size];
+            _objects = new GameObject[size];
             _size = size;
         }
     }
     //  shit
     public GameObject[] GetPool() {
-        return objects;
+        return _objects;
+    }
+    public GameObject[] GetPool(int amountOfElemetns) {
+        Array.Resize(ref _objects, amountOfElemetns);
+        return _objects;
     }
 
     public GameObject GetNextObject() {
         try {
-            if (objects.Length > counter)
-                return objects[counter++];
+            if (_objects.Length > _counter)
+                return _objects[_counter++];
             else
                 throw new IndexOutOfRangeException("overflowing of pool");
         }
@@ -43,15 +48,15 @@ public class ObjectPool<T> {
     
     public void ReturnObject(GameObject newObject){
         if (newObject.GetComponent<T>() != null){
-            objects.Append(newObject);
+            _objects.Append(newObject);
             newObject.SetActive(false);
         }
         else
             throw new Exception("wrong type of returning object in pool");
     }
 
-    private GameObject[] objects;
+    private GameObject[] _objects;
     
     private int _size = 0;
-    private int counter = 0;
+    private int _counter = 0;
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-//  objects schouldnt get access to movement simultaneously  
+//  _objects schouldnt get access to movement simultaneously  
 //  dependent from CardMovomentService 
 public class CardDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {

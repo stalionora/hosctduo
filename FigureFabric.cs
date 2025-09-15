@@ -17,21 +17,26 @@ class FigureFabric : IFabric {
             newFigure = GameObject.Instantiate(_prefab, _fieldCanvas);
         else
             newFigure = GameObject.Instantiate(_prefab);
+        ///////////////////////////////////////////////////////////////////////////////
+        // -> -> -> _prefab.transform.localScale = scale of cells <- <- <-
+        ///////////////////////////////////////////////////////////////////////////////
+        
+        //GameObject uiChild = new GameObject("UI_Image", typeof(RectTransform), typeof(CanvasRenderer), typeof(UnityEngine.UI.Image));
+        
+        //uiChild.transform.SetParent(newFigure.transform, false);
 
-        GameObject uiChild = new GameObject("UI_Image", typeof(RectTransform), typeof(CanvasRenderer), typeof(UnityEngine.UI.Image));
-        uiChild.transform.SetParent(newFigure.transform, false);
-
-        // Настраиваем RectTransform
-        RectTransform rt = uiChild.GetComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-
-        // Настраиваем Image
-        UnityEngine.UI.Image img = uiChild.GetComponent<UnityEngine.UI.Image>();
-        img.raycastTarget = true;
-        img.color = Color.red;
+        //// Настраиваем RectTransform
+        //RectTransform rt = uiChild.GetComponent<RectTransform>();
+        //rt.anchorMin = Vector2.zero;
+        //rt.anchorMax = Vector2.one;
+        //rt.offsetMin = Vector2.zero;
+        //rt.offsetMax = Vector2.zero;
+        
+        //// Настраиваем Image
+        //UnityEngine.UI.Image img = uiChild.GetComponent<UnityEngine.UI.Image>();
+        //img.raycastTarget = true;
+        //img.color = Color.black;
+        
         newFigure.SetActive(false);
         return newFigure;
     }

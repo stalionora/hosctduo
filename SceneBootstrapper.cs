@@ -2,12 +2,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 ////////////////////////////////////////////////////////
-//  Managing creatiion of objects and corresponding shit
+//  Managing creatiion of _objects and corresponding shit
 ////////////////////////////////////////////////////////
 
 public class SceneBootrstrapper : MonoBehaviour
 {
-    //  Scriptable objects
+    //  Scriptable _objects
     [SerializeField]
     private CardSize CardSize;  
     [SerializeField]
@@ -77,14 +77,13 @@ public class SceneBootrstrapper : MonoBehaviour
         _dealer.Initialize();    //  inherited from image in nested canvas
 
         //  hands
-        _playersHand.Cards = new ObjectPool<Card>(HandSize.HandSize).GetPool();
         _cardPool = new ObjectPool<Card>(HandSize.HandSize * 3);
 
         // for figures
 
         //  figures
         _figurePool = new ObjectPool<Figure>(HandSize.HandSize * 3);
-        _figurePlacer = new FigureDistributor(_figurePool, _cardPool);
+        _figurePlacer = new FigureDistributor(_figurePool, _cardPool, CellsMatrix);
         
         //  pools creation
         var currentCard = _cardPool.GetPool();
@@ -95,18 +94,16 @@ public class SceneBootrstrapper : MonoBehaviour
                 Debug.LogError($"Card #{i} is null");
             //  events which depending from actual cards
             currentCard[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
-            var _dataObserver = currentCard[i].AddComponent<FigureDataObserver>();
-            _dataObserver.OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
-            currentCard[i].GetComponent<CardDragHandler>().OnCardDragStart.AddListener(_dataObserver.StartObserving); //  pushing card data
-            GameService.GetService<ICellsTracker>().GetOnOutOfBorder().AddListener(_dataObserver.StopObserving);
+            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
             currentCard[i].name = $"Card #{i}";
             
             //  figures
             _figurePool.GetPool()[i] = figureFabric.Create(new Vector3());
             _figurePool.GetPool()[i].name = $"Figure #{i}";
         }
+        
         _playersHand.Cards = _cardPool.GetPool();
-
+        
         //  figures mechanics
         Debug.Log("Cards distributing");
         _dealer.DistributeCards(_cardPool.GetPool());
