@@ -21,13 +21,16 @@ public class SceneBootrstrapper : MonoBehaviour
     private GameObject FigurePrefab;
     [SerializeField]
     private GameObject PositionIndicatorOfCardPrefab;
+    [SerializeField]
+    private Material StandartShader;
 
     private void Start()
     {
         Debug.Log("Scene bootsrapper was started");
-        
+
         //  hands
         var PlayersHand = GameObject.Find("PlayersHand");
+        var trailwayCanvas = GameObject.Find(CellsMatrix.ParentCanvas).transform;
         _playersHand = PlayersHand.GetComponent<Hand>();
         if (_playersHand == null)
         {
@@ -50,11 +53,12 @@ public class SceneBootrstrapper : MonoBehaviour
         //  trailway - game field, + representation
         GameObject.Find("Trailway").GetComponent<Trailway>().Initialize();
 
-        //  Intialization of services
+        //  Intialization of services and depenent objects
         GetComponent<ServicesBootstrapper>().Initialize();
-        var positionIndicator = new PositionIndicator(CellsMatrix, PositionIndicatorOfCardPrefab, GameObject.Find(CellsMatrix.ParentCanvas).transform);
+        var positionIndicator = new PositionIndicator(CellsMatrix, PositionIndicatorOfCardPrefab, trailwayCanvas);
         positionIndicator.Initialize();
-
+        var movementWay = new MovementWay();
+        movementWay.Initialize(CellsMatrix, new GameObject(), trailwayCanvas, StandartShader);
         //  visual representation
         //var cellsRepresentation = GameObject.Find("TrailwaysRepresentation");
         //if (cellsRepresentation)
@@ -95,6 +99,7 @@ public class SceneBootrstrapper : MonoBehaviour
             //  events which depending from actual cards
             currentCard[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
             currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
+            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(movementWay.StartMakingWay);  //  receiving card data
             currentCard[i].name = $"Card #{i}";
             
             //  figures
@@ -115,7 +120,6 @@ public class SceneBootrstrapper : MonoBehaviour
     }
 
     //  contiguous things
-    //private FigureDataObserver _dataObserver;
     private FigureDistributor _figurePlacer;
     private Hand _playersHand;
     private HandDistributor _dealer;

@@ -20,7 +20,7 @@ class FigureDataObserver : MonoBehaviour {
         _dragHandler.OnCardDragEnd.AddListener(PushData);
     }
     public void StopPushingOnOutOfBorder() {
-        StopObserving(null);
+        StopObserving();
         GameService.GetService<ICellsTracker>().GetOnCellChange().AddListener(RestartObserving);
     }
     public void PushData(PointerEventData data)

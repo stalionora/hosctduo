@@ -1,7 +1,6 @@
-using Representation;
 using UnityEngine;
-using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
+
 ////////////////////////////////////////
 //  Hides cards after placing on board, makes figure visible and takes data from figureDataObserver
 //  Dependent from object pool, cells tracker, cellsMatrixData
@@ -24,56 +23,62 @@ public class FigureDistributor
             return;
         }
         //_figurePool; 
-        figure = _figurePool.GetNextObject();
+        _figure = _figurePool.GetNextObject();
 
         //  circle frame
         GameObject circleFrame = new GameObject("Frame", typeof(RectTransform), typeof(Image));
-        circleFrame.transform.SetParent(figure.transform, false);
+        circleFrame.transform.SetParent(_figure.transform, false);
         var frameRect = circleFrame.GetComponent<RectTransform>();
         frameRect.anchorMin = Vector2.zero;
         frameRect.anchorMax = Vector2.one;
-        frameRect.sizeDelta = _cellsMatrixData.CellSize * 0.57f;
-        circleFrame.GetComponent<Image>().sprite = figure.GetComponent<Image>().sprite;
+        frameRect.sizeDelta = _cellsMatrixData.CellSize * 0.6f;
+        _imagesSpaceSize = frameRect.localScale.y * _percentOfImageSpaceInFrame / 100f;
+        circleFrame.GetComponent<Image>().sprite = _figure.GetComponent<Image>().sprite;
         circleFrame.GetComponent<Image>().color = Color.black;
-        // --- Создаём объект для маски ---
-        GameObject maskObj = new GameObject("CircleMask", typeof(RectTransform), typeof(Image), typeof(Mask));
-        maskObj.transform.SetParent(figure.transform, false);
-        RectTransform maskRect = maskObj.GetComponent<RectTransform>(); //  spare image in parent
-        maskRect.sizeDelta = circleFrame.transform.localScale * 0.9f;
         
-        maskRect.anchorMin = Vector2.zero;
-        maskRect.anchorMax = Vector2.one;
-
-        // --- Настраиваем Image маски ---
-        Image maskImage = maskObj.GetComponent<Image>();
-        maskImage.sprite = figure.GetComponent<Image>().sprite;
-        maskImage.type = Image.Type.Simple; // или Simple, если круглый спрайт
-        maskImage.color = Color.white;
-        maskImage.maskable = true;
-
-        // --- Создаём Image с фигурой внутри маски ---
-        GameObject figuresImage = new GameObject("Image", typeof(RectTransform), typeof(Image));
-        figuresImage.transform.SetParent(maskObj.transform, false);
-        RectTransform imgRect = figuresImage.GetComponent<RectTransform>();
-        imgRect.anchorMin = Vector2.zero;
-        imgRect.anchorMax = Vector2.one;
-
-        //  finding images
-        foreach (var spriteCard in newCurrentCard.GetComponentsInChildren<Image>())
-            if (spriteCard.gameObject.name == "Image")
-                foreach (var spriteFigure in figure.GetComponentsInChildren<Image>())
-                    if (spriteFigure.gameObject.name == "Image")
-                        spriteFigure.sprite = spriteCard.sprite;
-
-        figuresImage.GetComponent<Image>().preserveAspect = true;   //  ?
+        ////  mask creation
+        //GameObject maskObj = new GameObject("CircleMask", typeof(RectTransform), typeof(Image), typeof(Mask));
+        //maskObj.transform.SetParent(_figure.transform, false);
+        //RectTransform maskRect = maskObj.GetComponent<RectTransform>(); //  spare image in parent
+        //maskRect.localScale = new Vector2(_imagesSpaceSize, _imagesSpaceSize);
+        ////maskRect.sizeDelta = circleFrame.transform.localScale * 0.98f;
         
-        figure.transform.position = GameService.GetService<ICellsTracker>().GetCurrentCellCoordinates(); //  = position of card
+        //maskRect.anchorMin = Vector2.zero;
+        //maskRect.anchorMax = Vector2.one;
+
+        //// masks image
+        //Image maskImage = maskObj.GetComponent<Image>();
+        //maskImage.sprite = _figure.GetComponent<Image>().sprite;
+        //maskImage.type = Image.Type.Simple; // или Simple, если круглый спрайт
+        //maskImage.color = Color.white;
+        //maskImage.maskable = true;
+
+        //// figure image
+        //GameObject figuresImage = new GameObject("Image", typeof(RectTransform), typeof(Image));
+        //figuresImage.transform.SetParent(maskObj.transform, false);
+        //RectTransform imgRect = figuresImage.GetComponent<RectTransform>();
+        //imgRect.anchorMin = Vector2.zero;
+        //imgRect.anchorMax = Vector2.one;
+
+        ////  finding images
+        //foreach (var spriteCard in newCurrentCard.GetComponentsInChildren<Image>())
+        //    if (spriteCard.gameObject.name == "Image")
+        //        foreach (var spriteFigure in _figure.GetComponentsInChildren<Image>())
+        //            if (spriteFigure.gameObject.name == "Image")
+        //                spriteFigure.sprite = spriteCard.sprite;
+
+        //figuresImage.GetComponent<Image>().preserveAspect = true;   //  ?
+        
+        _figure.transform.position = GameService.GetService<ICellsTracker>().GetCurrentCellCoordinates(); //  = position of card
         _cardPool.ReturnObject(newCurrentCard);
-        figure.SetActive(true);
+        _figure.SetActive(true);
     }
 
     ObjectPool<Figure> _figurePool;
     ObjectPool<Card> _cardPool;
-    GameObject figure;
+    GameObject _figure;
     CellsMatrixData _cellsMatrixData;
+
+    float _imagesSpaceSize = 0f;   
+    const float _percentOfImageSpaceInFrame = 90f;
 }

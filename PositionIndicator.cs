@@ -5,7 +5,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PositionIndicator
+public class PositionIndicator: ReusableObject
 {
     public PositionIndicator(CellsMatrixData cellsMatrixData, GameObject prefab,Transform parentCanvas)
     {
