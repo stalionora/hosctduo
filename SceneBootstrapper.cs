@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-
+using Representation;
 ////////////////////////////////////////////////////////
 //  Managing creatiion of _objects and corresponding shit
 ////////////////////////////////////////////////////////
@@ -54,21 +53,22 @@ public class SceneBootrstrapper : MonoBehaviour
         GameObject.Find("Trailway").GetComponent<Trailway>().Initialize();
 
         //  Intialization of services and depenent objects
+
         GetComponent<ServicesBootstrapper>().Initialize();
+        var movementWayService = GameService.GetService<MovementWayService>();
         var positionIndicator = new PositionIndicator(CellsMatrix, PositionIndicatorOfCardPrefab, trailwayCanvas);
         positionIndicator.Initialize();
-        var movementWay = new MovementWay();
-        movementWay.Initialize(CellsMatrix, new GameObject(), trailwayCanvas, StandartShader);
+        MovementWayService.GetInstance().GetComponent<MovementWay>().Initialize(CellsMatrix, new GameObject(), trailwayCanvas, StandartShader);
         //  visual representation
-        //var cellsRepresentation = GameObject.Find("TrailwaysRepresentation");
-        //if (cellsRepresentation)
-        //{
-        //    var representation = cellsRepresentation.GetComponent<SquareCellRepresentation>();
-        //    representation.SetRepresentationCollection(CellsMatrix.Height * CellsMatrix.Width);
-        //    for (int y = 0; y < CellsMatrix.Height; ++y)
-        //        for (int i = 0; i < CellsMatrix.Width; ++i)
-        //            representation.PlaceCellOnPoint(CellsMatrix.TrailwayCentersOfCells[y][i]);
-        //}
+        var cellsRepresentation = GameObject.Find("TrailwaysRepresentation");
+        if (cellsRepresentation)
+        {
+            var representation = cellsRepresentation.GetComponent<SquareCellRepresentation>();
+            representation.SetRepresentationCollection(CellsMatrix.Height * CellsMatrix.Width);
+            for (int y = 0; y < CellsMatrix.Height; ++y)
+                for (int i = 0; i < CellsMatrix.Width; ++i)
+                    representation.PlaceCellOnPoint(CellsMatrix.TrailwayCentersOfCells[y][i]);
+        }
 
         //  preparing shit
         IFabric cardFabric = new CardFabric(CardPrefab);
@@ -99,7 +99,7 @@ public class SceneBootrstrapper : MonoBehaviour
             //  events which depending from actual cards
             currentCard[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
             currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
-            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(movementWay.StartMakingWay);  //  receiving card data
+            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(movementWayService.StartMakingWay);  //  receiving card data
             currentCard[i].name = $"Card #{i}";
             
             //  figures

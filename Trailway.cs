@@ -16,16 +16,19 @@ public class Trailway : MonoBehaviour
     private void Awake() // receiving 
     {
         _cellsMatrixData.FieldRectSize = new Vector3[4];
-        GameObject.Find(_cellsMatrixData.ParentCanvas).GetComponent<RectTransform>().GetWorldCorners(_cellsMatrixData.FieldRectSize);
+        _parentRect = GameObject.Find(_cellsMatrixData.ParentCanvas).GetComponent<RectTransform>();
+        _parentRect.GetWorldCorners(_cellsMatrixData.FieldRectSize);
         //for (int i = 0; i < 4; ++i){
-        //    _cellsMatrixData.FieldRectSize[i] *= GameObject.Find("Canvas").GetComponent<RectTransform>().localScale.x; 
+        //    //    _cellsMatrixData.FieldRectSize[i] *= GameObject.Find("Canvas").GetComponent<RectTransform>().localScale.x; 
+        //    Debug.Log($"Center #{i + 1} have coordinates {_cellsMatrixData.FieldRectSize[i]}");
         //}
-    }
+}
     public void Initialize()
     {
         _cellsMatrixData.TrailwayCentersOfCells = new Vector3[_cellsMatrixData.Height][];
-        for (int i = 0; i < _cellsMatrixData.Height; ++i)
+        for (int i = 0; i < _cellsMatrixData.Height; ++i) { 
             _cellsMatrixData.TrailwayCentersOfCells[i] = new Vector3[_cellsMatrixData.Width];
+        }
         //  ui отзеркален, getworldcorners идут по часовой стрелке от нуля - либо 0, 3, 1, 2, либо 3, 0, 2, 1
         //  координаты относительно поля с учетом двух отступов
         //  1/2 - first position x and y, 3/4 - spacing, 4 - debug func
@@ -50,13 +53,15 @@ public class Trailway : MonoBehaviour
             for (int i = 0; i < _cellsMatrixData.Width; ++i)
             {
                 // distance is > 0?
-                _cellsMatrixData.TrailwayCentersOfCells[y][i] = new Vector3 (widthDistance * (i) + startPointX + _cellsMatrixData.SpacingHorizontal * i, heightDistance * (y) + startPointY + _cellsMatrixData.SpacingVertical * y, GetComponentInParent<Canvas>().transform.position.z);
+                _cellsMatrixData.TrailwayCentersOfCells[y][i] = new Vector3 (widthDistance * (i) + startPointX + _cellsMatrixData.SpacingHorizontal * i, heightDistance * (y) + startPointY + _cellsMatrixData.SpacingVertical * y, _cellsMatrixData.FieldRectSize[0].z);
+                //_parentRect.TransformPoint(_cellsMatrixData.TrailwayCentersOfCells[y][i]);
+                Debug.Log($" Cell #{y * _cellsMatrixData.Width + i + 1} have coordinates {_cellsMatrixData.TrailwayCentersOfCells[y][i]}");
             }
             //Debug.Log($"Высота столбца = {_cellsMatrixData.TrailwayCentersOfCells[y].Length}");
         }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////
     
-    //private RectTransform _rectangle;
+    private RectTransform _parentRect;
     //private GameObject[] _imagesConcept = new GameObject[_amount * (_amount + 1)];
 };

@@ -59,6 +59,7 @@ public class CardMovementService: IService, IMovementService
 
     public void OnDrag(Vector3 eventPosition)  //
     {
+        Debug.Log($"Card dragging");
         //SetDraggedPosition(eventData, ZPointOfPlane, _mouseOffset);
         _ray = _mainCamera.ScreenPointToRay(eventPosition);    //ray from cursor along forward?
         //_ray.direction = Vector3.forward;
@@ -80,7 +81,8 @@ public class CardMovementService: IService, IMovementService
         if (_returnInHand)
             _currentCard.gameObject.transform.position = _originalPosition;
         else
-            _currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
+            _currentCard.gameObject.transform.position = (Vector2)(_cellsTracker.GetCurrentCellCoordinates());
+        //_currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
     }
 
     private void CalculateFructumRatio()
@@ -92,7 +94,7 @@ public class CardMovementService: IService, IMovementService
             _fructumRatio = canvasesFructumHeight / dragPlaneFructumHeight;
         }
         else
-            _fructumRatio = 1.0f;
+            _fructumRatio = 1.0f;  
     }
 
     private void ReturnInHand()
@@ -105,13 +107,15 @@ public class CardMovementService: IService, IMovementService
     }
 
     //  implementation shit
+    //  mouse tracking related
     private Camera _mainCamera;
     private Plane _planeOnDrag = new Plane();
     private Plane _planeOfCanvas = new Plane();
     private Ray _ray = new Ray();   //direct rays
-    private RectTransform _currentCard;
     private Vector3 _canvasPosition;    //canvas surface
     private Vector3 _mouseOffset = new Vector3();   //offset before drag
+    //  card related
+    private RectTransform _currentCard;
     private Vector3 _originalPosition = new Vector3();   //position to return card before drag
     private bool _returnInHand = true;
     //  dependencies
