@@ -18,6 +18,7 @@ public class TimerMock : IService
     {
         while (_isRunning)
         {
+            Debug.Log("TimerMock takt");
             await Task.Delay((int)(_turnTime * 1000)); // миллисекунды
             _figureService.PerformOnTurnEnd();
         }
