@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 //////////////////////////////////////////////
 //  depending from: IcellsTracker, MouseTracker
@@ -7,18 +6,17 @@ using UnityEngine;
 
 
 public class MovementWay : MonoBehaviour{
+    public List<Vector3> Points { get { return _points; } }
     //  добавить внешний ивент, который будет отрубать этот объект, который должен бы быть синглтоном, и триггерить пуш данных 
     //  вынести в отдельный класс трекинг мыши 
     public void Awake()
     {
         enabled = false;
-        _mainCamera = Camera.allCameras[0];
     }
     public void Initialize(CellsMatrixData cellsMatrixData, GameObject prefab, Transform parentCanvas, Material shader)
     {
 
         _cellsTracker = GameService.GetService<ICellsTracker>();
-        _mouseTracker = new MouseTracker(GameObject.Find(cellsMatrixData.ParentCanvas).transform.position);
         this.transform.gameObject.AddComponent<MeshRenderer>();
         this.transform.gameObject.AddComponent<MeshFilter>();
         this.transform.gameObject.name = "MovementWay";
@@ -30,6 +28,7 @@ public class MovementWay : MonoBehaviour{
         _halfWidth = cellsMatrixData.CellSize.y / 7f;
         _mid.z = cellsMatrixData.FieldRectSize[0].z;
         this.transform.position = _mid;
+       
     }
     //private void Update()
     //{
@@ -65,10 +64,10 @@ public class MovementWay : MonoBehaviour{
         //_cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x - _horizontalMultiplier, _mid.y + _majorLineMultiplier.y - _verticalMultiplier, newPoint.z - Vector3.one.z));
         //_cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x + _horizontalMultiplier, _mid.y + _majorLineMultiplier.y + _verticalMultiplier, newPoint.z - Vector3.one.z));
         //_cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x + _horizontalMultiplier, _mid.y - _majorLineMultiplier.y + _verticalMultiplier, newPoint.z - Vector3.one.z));
-        _cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x - _horizontalMultiplier, _mid.y - _majorLineMultiplier.y - _verticalMultiplier, 0 - Vector3.one.z));
-        _cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x - _horizontalMultiplier, _mid.y + _majorLineMultiplier.y - _verticalMultiplier, 0 - Vector3.one.z));
-        _cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x + _horizontalMultiplier, _mid.y + _majorLineMultiplier.y + _verticalMultiplier, 0 - Vector3.one.z));
-        _cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x + _horizontalMultiplier, _mid.y - _majorLineMultiplier.y + _verticalMultiplier, 0 - Vector3.one.z));
+        _cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x - _horizontalMultiplier, _mid.y - _majorLineMultiplier.y - _verticalMultiplier, _zPointPlane));
+        _cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x - _horizontalMultiplier, _mid.y + _majorLineMultiplier.y - _verticalMultiplier, _zPointPlane));
+        _cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x + _horizontalMultiplier, _mid.y + _majorLineMultiplier.y + _verticalMultiplier, _zPointPlane));
+        _cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x + _horizontalMultiplier, _mid.y - _majorLineMultiplier.y + _verticalMultiplier, _zPointPlane));
         _trianglesOrder.Add(0 + _startingIndex);
         _trianglesOrder.Add(1 + _startingIndex);
         _trianglesOrder.Add(2 + _startingIndex);
@@ -88,7 +87,7 @@ public class MovementWay : MonoBehaviour{
     }
 
     //  managing
-    public void StartMakingWay(ref GameObject draggedCard)
+    public void StartMakingWay()
     {
         //_rectScaler = draggedCard.GetComponentInParent<RectTransform>().localScale;
         //enabled = true;
@@ -100,8 +99,8 @@ public class MovementWay : MonoBehaviour{
     //  
     public void Reset()
     {
-        _mesh.triangles = null;
-        _mesh.vertices = null;
+        _mesh.triangles = new int[0];
+        _mesh.vertices = new Vector3[0];
         _mesh.RecalculateBounds();
         _mesh.RecalculateNormals();
         _cloclwiseVertices.Clear();
@@ -120,7 +119,6 @@ public class MovementWay : MonoBehaviour{
     public void ShapingTheCornerBridges() { }
     //////////////////////////////////////////////
 
-    private Camera _mainCamera;
     private Mesh _mesh;
     private Vector3 _lastPoint = new();
     private Vector3 _mid = new();
@@ -130,10 +128,10 @@ public class MovementWay : MonoBehaviour{
     private List<Vector3> _points = new List<Vector3>();
     private List<int> _trianglesOrder = new List<int>();
     private ICellsTracker _cellsTracker;
-    private MouseTracker _mouseTracker;
     //private float _bridge = 0f;
     private float _halfWidth = 5.0f; //  width of line
     private float _horizontalMultiplier = 0f;
+    private float _zPointPlane = 0 - Vector3.one.z;
     private float _verticalMultiplier = 0f;
     private int _rounding = 0;
     private int _startingIndex = 0;

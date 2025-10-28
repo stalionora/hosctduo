@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 
 // depending from trailway model, GameService, ICellsTracker, CellsMatrixData 
-// separately also implemented through plane, ray and local mouse position
+// separately also implemented through plane, ray and local mouse position, mouseTracker
 public class CardMovementService: IService, IMovementService
 { 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -20,7 +20,7 @@ public class CardMovementService: IService, IMovementService
         _canvasPosition = GameObject.Find($"{_cellsMatrix.ParentCanvas}").GetComponent<RectTransform>().position;    //parents canvas transform
          //initialize
         _planeOfCanvas.SetNormalAndPosition(Vector3.forward, new Vector3(0, 0, _canvasPosition.z));
-        _planeOnDrag.SetNormalAndPosition(Vector3.forward, new Vector3(0, 0, ZPointOnDrag));
+        _planeOnDrag.SetNormalAndPosition(Vector3.forward, new Vector3(0, 0, _zPointOnDrag));
         CalculateFructumRatio();
         //if (ZPointOfPlane > _canvasPosition.z)    //should be over the canvas
         //    ZPointOfPlane = _canvasPosition.z;
@@ -28,6 +28,7 @@ public class CardMovementService: IService, IMovementService
         Assert.IsNotNull(_cellsTracker);
         _cellsTracker.GetOnOutOfBorder().AddListener(ReturnInHand);
         _cellsTracker.GetOnCellChange().AddListener(PlaceOnFieldOnEndDrag);
+        _mouseTracker = new MouseTracker(new Vector3(0, 0, _canvasPosition.z));
         Debug.Log("Cells initialization service");
     }
 
@@ -53,7 +54,7 @@ public class CardMovementService: IService, IMovementService
             throw new Exception("offset not determined");
         //  activating services, before they was starting to use in onDrag
         //  takong up the card 
-        _currentCard.gameObject.transform.position = new Vector3(_currentCard.gameObject.transform.position.x / _fructumRatio, _currentCard.gameObject.transform.position.y / _fructumRatio, ZPointOnDrag);
+        _currentCard.gameObject.transform.position = new Vector3(_currentCard.gameObject.transform.position.x / _fructumRatio, _currentCard.gameObject.transform.position.y / _fructumRatio, _zPointOnDrag);
         // 1! CellsTrackerService.Track(this)  //type = card
     }
 
@@ -80,8 +81,11 @@ public class CardMovementService: IService, IMovementService
         Debug.Log($"in");
         if (_returnInHand)
             _currentCard.gameObject.transform.position = _originalPosition;
-        else
-            _currentCard.gameObject.transform.position = (Vector2)(_cellsTracker.GetCurrentCellCoordinates());
+        else{
+            _currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
+            //  !!!!!!! not optimized
+            //_currentCard.gameObject.transform.position = _mouseTracker.PerspectivePointTranslation(_cellsTracker.GetCurrentCellCoordinates(), new Plane(Vector3.back, _zPointOnDrag));
+        }
         //_currentCard.gameObject.transform.position = _cellsTracker.GetCurrentCellCoordinates();
     }
 
@@ -90,7 +94,7 @@ public class CardMovementService: IService, IMovementService
         if (_mainCamera.orthographic == false)
         {
             var canvasesFructumHeight = 2.0f * _canvasPosition.z * Mathf.Tan(_mainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
-            var dragPlaneFructumHeight = 2.0f * ZPointOnDrag * Mathf.Tan(_mainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            var dragPlaneFructumHeight = 2.0f * _zPointOnDrag * Mathf.Tan(_mainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
             _fructumRatio = canvasesFructumHeight / dragPlaneFructumHeight;
         }
         else
@@ -102,7 +106,8 @@ public class CardMovementService: IService, IMovementService
         _returnInHand = true;
     }
 
-    private void PlaceOnFieldOnEndDrag(Vector3 point) {
+    private void PlaceOnFieldOnEndDrag(Vector3 point)
+    {
         _returnInHand = false;
     }
 
@@ -114,6 +119,8 @@ public class CardMovementService: IService, IMovementService
     private Ray _ray = new Ray();   //direct rays
     private Vector3 _canvasPosition;    //canvas surface
     private Vector3 _mouseOffset = new Vector3();   //offset before drag
+    //
+    private MouseTracker _mouseTracker;
     //  card related
     private RectTransform _currentCard;
     private Vector3 _originalPosition = new Vector3();   //position to return card before drag
@@ -123,5 +130,5 @@ public class CardMovementService: IService, IMovementService
     private CellsMatrixData _cellsMatrix;
     //
     private float _fructumRatio = 1.0f;
-    private float ZPointOnDrag = 40.0f;
+    private float _zPointOnDrag = 40.0f;
 }

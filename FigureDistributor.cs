@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using Image = UnityEngine.UI.Image;
 
 ////////////////////////////////////////
@@ -10,6 +11,7 @@ public class FigureDistributor
 {
     //  figure creation on end drag
     //  —“¿¬»“‹ ‘»√”–€ ¬ ÷≈Õ“–  À≈“ »
+    public UnityEvent<GameObject> OnEndSwitching = new();
     public FigureDistributor(ObjectPool<Figure> figurePool, ObjectPool<Card> cardPool, CellsMatrixData cellsMatrixData) { 
         _figurePool = figurePool;
         _cardPool = cardPool;
@@ -35,14 +37,14 @@ public class FigureDistributor
         _imagesSpaceSize = frameRect.localScale.y * _percentOfImageSpaceInFrame / 100f;
         circleFrame.GetComponent<Image>().sprite = _figure.GetComponent<Image>().sprite;
         circleFrame.GetComponent<Image>().color = Color.black;
-        
+
         ////  mask creation
         //GameObject maskObj = new GameObject("CircleMask", typeof(RectTransform), typeof(Image), typeof(Mask));
         //maskObj.transform.SetParent(_figure.transform, false);
         //RectTransform maskRect = maskObj.GetComponent<RectTransform>(); //  spare image in parent
         //maskRect.localScale = new Vector2(_imagesSpaceSize, _imagesSpaceSize);
         ////maskRect.sizeDelta = circleFrame.transform.localScale * 0.98f;
-        
+
         //maskRect.anchorMin = Vector2.zero;
         //maskRect.anchorMax = Vector2.one;
 
@@ -68,11 +70,18 @@ public class FigureDistributor
         //                spriteFigure.sprite = spriteCard.sprite;
 
         //figuresImage.GetComponent<Image>().preserveAspect = true;   //  ?
-        
-        _figure.transform.position = GameService.GetService<ICellsTracker>().GetCurrentCellCoordinates(); //  = position of card
+
+        //_figure.transform.position = GameService.GetService<ICellsTracker>().GetCurrentCellCoordinates(); //  = position of card
+        var cellsTracker = GameService.GetService<ICellsTracker>();
+        cellsTracker.CalcuateCurrentCell(newCurrentCard.transform.position);
+        _figure.transform.position = cellsTracker.GetCurrentCellCoordinates(); //  = position of card
+
         _cardPool.ReturnObject(newCurrentCard);
         _figure.SetActive(true);
+        OnEndSwitching.Invoke(_figure);
     }
+
+
 
     ObjectPool<Figure> _figurePool;
     ObjectPool<Card> _cardPool;

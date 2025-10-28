@@ -1,5 +1,5 @@
 using UnityEngine;
-[CreateAssetMenu(fileName = "CellsMatrixData", menuName = "ScriptableObjects/CellsMatrixData")]
+[CreateAssetMenu(fileName = "CellsMatrixData", menuName = "ScriptableObject/CellsMatrixData")]
 public class CellsMatrixData : ScriptableObject
 {
     //
@@ -15,6 +15,8 @@ public class CellsMatrixData : ScriptableObject
     private float _offsetTop;
     [SerializeField]
     private float _offsetLeft;
+    [SerializeField]
+    private float _zPointOfDraggedItems = 40.0f; 
 
     //
     public Vector3 CellSize { get { return _cellSize; } set { _cellSize = value; } }
@@ -28,6 +30,7 @@ public class CellsMatrixData : ScriptableObject
     public float OffsetLeft { get { return _offsetLeft; } }
     public float SpacingHorizontal { get { return _spacingHorizontal; } }
     public float SpacingVertical { get { return _spacingVertical; } }
+    public float ZPointOnDrag { get { return _zPointOfDraggedItems; } }
     //
 
     private Vector3 _cellSize; // x - width, y - height, z - deep

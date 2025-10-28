@@ -1,5 +1,5 @@
-using UnityEngine;
 using Representation;
+using UnityEngine;
 ////////////////////////////////////////////////////////
 //  Managing creatiion of _objects and corresponding shit
 ////////////////////////////////////////////////////////
@@ -91,15 +91,33 @@ public class SceneBootrstrapper : MonoBehaviour
         
         //  pools creation
         var currentCard = _cardPool.GetPool();
+        FigureDataObserver dataObserver; 
+        CardDragHandler dragHandler; 
+        
+        ////////////////////////////////////////////////////////
+        //  SETTING UP CARDS
+        //  - fabric calling
+        //  - 
+        //  -
+        //  -
         for (int i = 0; i < _cardPool.Size; ++i){
-            //  cards
             currentCard[i] = cardFabric.Create(new Vector3());
             if (currentCard == null)
                 Debug.LogError($"Card #{i} is null");
             //  events which depending from actual cards
-            currentCard[i].GetComponent<CardDragHandler>().OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
-            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);  //  receiving card data
-            currentCard[i].GetComponent<FigureDataObserver>().OnPushingData.AddListener(movementWayService.StartMakingWay);  //  receiving card data
+            dataObserver = currentCard[i].GetComponent<FigureDataObserver>();
+            dragHandler = currentCard[i].GetComponent<CardDragHandler>();
+            
+            dragHandler.OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
+            movementWayService.OnSettingTarget.AddListener(positionIndicator.WaitActivationFromEvent);  //  on finishing movement way of figure   
+            dataObserver.OnPushingData.AddListener(positionIndicator.DeactivateTracking);            //  listening figure data observer from distributor
+            _figurePlacer.OnEndSwitching.AddListener(positionIndicator.ActivateTracking);
+
+            dataObserver.OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);            //  listening figure data observer from distributor
+            dragHandler.OnCardDragEnd.AddListener(movementWayService.StartMakingWay);           //  from making line service to set the way of figures moving 
+            dragHandler.OnCardDragStart.AddListener(dataObserver.ActivateObservingFunctioin);    //  
+            movementWayService.OnSettingTarget.AddListener(dataObserver.DeactivateObservingFunction);
+            
             currentCard[i].name = $"Card #{i}";
             
             //  figures
@@ -108,7 +126,7 @@ public class SceneBootrstrapper : MonoBehaviour
         }
         
         _playersHand.Cards = _cardPool.GetPool();
-        
+        GameService.Register<TimerMock>(new TimerMock()).Initialize();
         //  figures mechanics
         Debug.Log("Cards distributing");
         _dealer.DistributeCards(_cardPool.GetPool());

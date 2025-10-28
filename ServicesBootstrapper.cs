@@ -16,6 +16,7 @@ public class ServicesBootstrapper : MonoBehaviour
         ((CellsTrackerService)GameService.Register<ICellsTracker>(new CellsTrackerService(_cellsMatrix))).Initialize();   //  position on the field in the end of the drag
         ((CardMovementService)GameService.Register<CardMovementService>(new CardMovementService(_cellsMatrix))).Initialize();
         ((MovementWayService)GameService.Register<MovementWayService>(new MovementWayService())).Initialize();
+        ((FigureMovementService)GameService.Register<FigureMovementService>(new FigureMovementService(_cellsMatrix))).Initialize();
         //
     }
 

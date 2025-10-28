@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CardSize", menuName = "ScriptableObjects/CardSize")]
+[CreateAssetMenu(fileName = "CardSize", menuName = "ScriptableObject/CardSize")]
 
 public class CardSize : ScriptableObject
 {

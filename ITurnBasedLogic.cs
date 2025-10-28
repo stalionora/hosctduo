@@ -1,0 +1,3 @@
+interface ITurnBaseLogic {
+    void PerformOnTurnEnd();
+}
