@@ -47,6 +47,11 @@ public class CellsTrackerService : IService, ICellsTracker
     {
         return OnOutOfBorder;
     }
+    public UnityEvent GetOnReturnInBorder()
+    {
+        return OnReturnInBorder;
+    }
+
     ///////////////////////////////
     //  MAJOR FUNCTIONALITY [ WRONG ]
     //  - не учитываются отступы

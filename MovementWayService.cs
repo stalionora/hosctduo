@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 /////////////////////////////////////////////////////////////////////////////////
 //  singleton, dependends on: MovementWay, EventInpuTrigger, FigureDataObserver, FigureWayService
 /////////////////////////////////////////////////////////////////////////////////
-class MovementWayService: IService{
+public class MovementWayService: IService{
     public UnityEvent<PointerEventData> OnSettingTarget = new();
     
     public static GameObject GetInstance() {
@@ -29,13 +29,14 @@ class MovementWayService: IService{
         _object.SetActive(true);
         _movementWay.StartMakingWay();
         _eventTrigger.OnCursorMoveCustom.AddListener(UpdateMovementWay);
-        _eventTrigger.OnClickCustom.AddListener(StopMakingWay);
+        _eventTrigger.OnClickCustom.AddListener(OnStopMakingWay);
         _cardPosition = _cellsTracker.GetCurrentCellCoordinates();
+        PerformCreationFlagSet();
     }
 
-    public void StopMakingWay(PointerEventData data){
+    public void OnStopMakingWay(PointerEventData data = null){
         Debug.Log("stop making way");
-        if (true) {    //  on the correct exit with click at enemy
+        if (_actOnEndflag) {    //  on the correct exit with click at enemy
             data.position = _cardPosition;
             OnSettingTarget.Invoke(data);
             GameService.GetService<FigureMovementService>().AddMovementWay(_movementWay.Points.ToArray());
@@ -45,14 +46,27 @@ class MovementWayService: IService{
         _object.SetActive(false);
         _eventTrigger.gameObject.SetActive(false);
         _eventTrigger.OnCursorMoveCustom.RemoveListener(UpdateMovementWay);
-        _eventTrigger.OnClickCustom.RemoveListener(StopMakingWay);
+        _eventTrigger.OnClickCustom.RemoveListener(OnStopMakingWay);
     }
 
-    void UpdateMovementWay(Vector3 eventData){
+    public void CancelMakingWay() { 
+        _actOnEndflag = false;
+        OnStopMakingWay();
+    }
+
+    public void CancelCreationFlagSet() { 
+        _actOnEndflag = false;
+    }
+    public void PerformCreationFlagSet() { 
+        _actOnEndflag = true;
+    }
+    private void UpdateMovementWay(Vector3 eventData){
         //Debug.Log("update way");
         _cellsTracker.CalcuateCurrentCell(_mouseTracker.TrackMouse(eventData));
     }
 
+
+    //
     static private GameObject _object;
     
     private ICellsTracker _cellsTracker;
@@ -60,8 +74,10 @@ class MovementWayService: IService{
     private IndependentCellsTrackerTrigger _eventTrigger;
     private MouseTracker _mouseTracker;
     private MovementWay _movementWay;
-    private const float _zPointOfCellsMatrix = 90f;
     private Vector3 _cardPosition = new();
+ 
+    private const float _zPointOfCellsMatrix = 90f;
+    private bool _actOnEndflag = false;
 }
 //    public UnityEvent OnSettingTarget;
 
@@ -81,10 +97,10 @@ class MovementWayService: IService{
 //        _eventTrigger.gameObject.SetActive(true);
 //        _movementWay.gameObject.SetActive(true);
 //        _movementWay.StartMakingWay(ref draggedCard);
-//        _eventTrigger.OnClickCustom.AddListener(StopMakingWay);
+//        _eventTrigger.OnClickCustom.AddListener(OnStopMakingWay);
 //    }
 
-//    public void StopMakingWay(PointerEventData data){
+//    public void OnStopMakingWay(PointerEventData data){
 //        _movementWay.Reset();    
 //        _movementWay.gameObject.SetActive(false);
 //        _eventTrigger.gameObject.SetActive(false);

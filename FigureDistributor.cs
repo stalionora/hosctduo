@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using Image = UnityEngine.UI.Image;
 
 ////////////////////////////////////////
@@ -38,36 +39,36 @@ public class FigureDistributor
         circleFrame.GetComponent<Image>().sprite = _figure.GetComponent<Image>().sprite;
         circleFrame.GetComponent<Image>().color = Color.black;
 
-        ////  mask creation
-        //GameObject maskObj = new GameObject("CircleMask", typeof(RectTransform), typeof(Image), typeof(Mask));
-        //maskObj.transform.SetParent(_figure.transform, false);
-        //RectTransform maskRect = maskObj.GetComponent<RectTransform>(); //  spare image in parent
-        //maskRect.localScale = new Vector2(_imagesSpaceSize, _imagesSpaceSize);
-        ////maskRect.sizeDelta = circleFrame.transform.localScale * 0.98f;
+        //  mask creation
+        GameObject maskObj = new GameObject("CircleMask", typeof(RectTransform), typeof(Image), typeof(Mask));
+        maskObj.transform.SetParent(_figure.transform, false);
+        RectTransform maskRect = maskObj.GetComponent<RectTransform>(); //  spare image in parent
+        maskRect.localScale = new Vector2(_imagesSpaceSize, _imagesSpaceSize);
+        //maskRect.sizeDelta = circleFrame.transform.localScale * 0.98f;
 
-        //maskRect.anchorMin = Vector2.zero;
-        //maskRect.anchorMax = Vector2.one;
+        maskRect.anchorMin = Vector2.zero;
+        maskRect.anchorMax = Vector2.one;
 
-        //// masks image
-        //Image maskImage = maskObj.GetComponent<Image>();
-        //maskImage.sprite = _figure.GetComponent<Image>().sprite;
-        //maskImage.type = Image.Type.Simple; // или Simple, если круглый спрайт
-        //maskImage.color = Color.white;
-        //maskImage.maskable = true;
+        // masks image
+        Image maskImage = maskObj.GetComponent<Image>();
+        maskImage.sprite = _figure.GetComponent<Image>().sprite;
+        maskImage.type = Image.Type.Simple; // или Simple, если круглый спрайт
+        maskImage.color = Color.white;
+        maskImage.maskable = true;
 
-        //// figure image
-        //GameObject figuresImage = new GameObject("Image", typeof(RectTransform), typeof(Image));
-        //figuresImage.transform.SetParent(maskObj.transform, false);
-        //RectTransform imgRect = figuresImage.GetComponent<RectTransform>();
-        //imgRect.anchorMin = Vector2.zero;
-        //imgRect.anchorMax = Vector2.one;
+        // figure image
+        GameObject figuresImage = new GameObject("Image", typeof(RectTransform), typeof(Image));
+        figuresImage.transform.SetParent(maskObj.transform, false);
+        RectTransform imgRect = figuresImage.GetComponent<RectTransform>();
+        imgRect.anchorMin = Vector2.zero;
+        imgRect.anchorMax = Vector2.one;
 
-        ////  finding images
-        //foreach (var spriteCard in newCurrentCard.GetComponentsInChildren<Image>())
-        //    if (spriteCard.gameObject.name == "Image")
-        //        foreach (var spriteFigure in _figure.GetComponentsInChildren<Image>())
-        //            if (spriteFigure.gameObject.name == "Image")
-        //                spriteFigure.sprite = spriteCard.sprite;
+        //  finding images
+        foreach (var spriteCard in newCurrentCard.GetComponentsInChildren<Image>())
+            if (spriteCard.gameObject.name == "Image")
+                foreach (var spriteFigure in _figure.GetComponentsInChildren<Image>())
+                    if (spriteFigure.gameObject.name == "Image")
+                        spriteFigure.sprite = spriteCard.sprite;
 
         //figuresImage.GetComponent<Image>().preserveAspect = true;   //  ?
 

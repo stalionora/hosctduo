@@ -1,4 +1,5 @@
 using Representation;
+using TMPro;
 using UnityEngine;
 ////////////////////////////////////////////////////////
 //  Managing creatiion of _objects and corresponding shit
@@ -110,14 +111,15 @@ public class SceneBootrstrapper : MonoBehaviour
             
             dragHandler.OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
             movementWayService.OnSettingTarget.AddListener(positionIndicator.WaitActivationFromEvent);  //  on finishing movement way of figure   
-            dataObserver.OnPushingData.AddListener(positionIndicator.DeactivateTracking);            //  listening figure data observer from distributor
+            dataObserver.OnPushingData.AddListener(positionIndicator.DeactivateTracking);            
             _figurePlacer.OnEndSwitching.AddListener(positionIndicator.ActivateTracking);
 
             dataObserver.OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);            //  listening figure data observer from distributor
             dragHandler.OnCardDragEnd.AddListener(movementWayService.StartMakingWay);           //  from making line service to set the way of figures moving 
             dragHandler.OnCardDragStart.AddListener(dataObserver.ActivateObservingFunctioin);    //  
             movementWayService.OnSettingTarget.AddListener(dataObserver.DeactivateObservingFunction);
-            
+
+            GameService.GetService<ICellsTracker>().GetOnOutOfBorder().AddListener(movementWayService.CancelMakingWay);
             currentCard[i].name = $"Card #{i}";
             
             //  figures
@@ -126,7 +128,16 @@ public class SceneBootrstrapper : MonoBehaviour
         }
         
         _playersHand.Cards = _cardPool.GetPool();
+        
+        //Timer
         GameService.Register<TimerMock>(new TimerMock()).Initialize();
+        GameService.GetService<TimerMock>().OnEverySecond.AddListener(GameObject.Find("Timer").GetComponentInChildren<TimerRepresentation>().OnUpdateNumber);
+        GameService.GetService<TimerMock>().OnTurnEnd.AddListener(GameObject.Find("EndTurnMessage").GetComponentInChildren<EndMessage>().ChangeMessage);
+        GameService.GetService<TimerMock>().OnTurnEnd.AddListener(GameService.GetService<FigureMovementService>().PerformOnTurnEnd);
+        
+        //
+        _figurePlacer.OnEndSwitching.AddListener(GameService.GetService<FigureMovementService>().AddFigure);
+        
         //  figures mechanics
         Debug.Log("Cards distributing");
         _dealer.DistributeCards(_cardPool.GetPool());

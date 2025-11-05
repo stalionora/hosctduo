@@ -7,5 +7,6 @@ public interface ICellsTracker
     Vector3 GetCurrentCellCoordinates();
     UnityEvent<Vector3> GetOnCellChange();  //  returns Unity event
     UnityEvent GetOnOutOfBorder(); //  to deactivate position indicator
+    UnityEvent GetOnReturnInBorder(); //  to deactivate position indicator
     
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 //////////////////////////////////////////////
+/// creates lin(with first cell)
 //  depending from: IcellsTracker, MouseTracker
 //////////////////////////////////////////////
 

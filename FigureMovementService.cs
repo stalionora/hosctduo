@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-class FigureMovementService: IService, ITurnBaseLogic{
-    public FigureMovementService(CellsMatrixData cellsMatrix) { 
+public class FigureMovementService : IService, ITurnBaseLogic {
+    public FigureMovementService(CellsMatrixData cellsMatrix) {
         _cellsMatrix = cellsMatrix;
     }
-    public void Initialize(){
+    public void Initialize() {
         _spaceInPointsArray = _cellsMatrix.Width * _cellsMatrix.Height;
         _points = new List<Vector3[]>();
         //new Vector3[];
@@ -21,27 +21,40 @@ class FigureMovementService: IService, ITurnBaseLogic{
         _points.Add(new Vector3[_spaceInPointsArray]);
         var currentPointsIndex = _points.Count() - 1;
         Array.Copy(points, 0L, _points[currentPointsIndex], 0, points.Length);
-        for (int i = points.Count(); i < _spaceInPointsArray; ++i)
+        for (int i = points.Count() - 1; i < _spaceInPointsArray; ++i)  //  filling array with invalid numbers
             _points[currentPointsIndex][i] = _outOfPointsRange;
+        _points[currentPointsIndex][0] = _outOfPointsRange; //  removins first element, which have been used in making way representation
+        for (int j = 0; j < _spaceInPointsArray - 2; ++j)   //  SHIFT
+            _points[currentPointsIndex][j] = _points[_points.Count() - 1][j + 1];
 
     }
-    public void PerformOnTurnEnd() {
+public void PerformOnTurnEnd() {
         Debug.Log("End of turn");
+        Debug.Log($"Figures count = {_figures.Count}");
+        Debug.Log($"points count = {_points.Count}");
+
         for (int i = 0; i < _figures.Count; ++i) {
+        Debug.Log($"point != out of position");
             if (_points[i][0] != _outOfPointsRange) { 
                 _figures[i].transform.position = _points[i][0];
-                for (int j = 0; j < _points.Count - 1; ++j)
-                    _points[i][j] = _points[i][j + 1];
-                _points[i][_points.Count - 1] = _outOfPointsRange;
+                ShiftLeft(i);
             }
             else{
                 _figures.RemoveAt(i);
                 _points.RemoveAt(i);
             }
         }
-           
+
     }
 
+    private void ShiftLeft(int pointsI)
+    {
+        for (int j = 0; j < _spaceInPointsArray - 2; ++j)
+
+            _points[pointsI][j] = _points[pointsI][j + 1];
+
+        _points[pointsI][_spaceInPointsArray - 1] = _outOfPointsRange;
+    }
     //
     private List<GameObject> _figures = new List<GameObject>();   //  without fixed limit of figures on field
     private List<Vector3[]> _points;

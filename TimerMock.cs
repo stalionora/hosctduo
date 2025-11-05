@@ -1,31 +1,41 @@
 using System.Threading.Tasks;
 using UnityEngine;
-
+using UnityEngine.Events;
+///////////////////////////////////////////////////////////
+//  depends on: 
+///////////////////////////////////////////////////////////
 public class TimerMock : IService
 {
-    private FigureMovementService _figureService;
-    private bool _isRunning;
-    private float _turnTime = 10f;
-
+    public UnityEvent OnEverySecond = new(); 
+    public UnityEvent OnTurnEnd = new(); 
     public void Initialize()
     {
-        _figureService = GameService.GetService<FigureMovementService>();
         _isRunning = true;
         RunTimer();
-    }
-
-    private async void RunTimer()
-    {
-        while (_isRunning)
-        {
-            Debug.Log("TimerMock takt");
-            await Task.Delay((int)(_turnTime * 1000)); // миллисекунды
-            _figureService.PerformOnTurnEnd();
-        }
+        MockEndTurn();
     }
 
     public void Stop()
     {
         _isRunning = false;
     }
+
+    private async void RunTimer()
+    {
+        while (_isRunning) { 
+            await Task.Delay(1000); 
+            OnEverySecond.Invoke();         
+        }
+    }
+    private async void MockEndTurn()
+    {
+        while (_isRunning)
+        {
+            await Task.Delay((int)(_turnTime)); 
+            OnTurnEnd.Invoke(); //  null reference при уничтожении 
+        }
+    }
+    private bool _isRunning;
+    private float _turnTime = 2000f; //10^-3
+
 }
