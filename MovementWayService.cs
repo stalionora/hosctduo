@@ -1,18 +1,19 @@
 using NUnit.Framework;
+using System.Net;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 /////////////////////////////////////////////////////////////////////////////////
-//  singleton, dependends on: MovementWay, EventInpuTrigger, FigureDataObserver, FigureWayService
+//  singleton, dependends on: MovementWay, EventInputTrigger, FigureWayService, cellsTrackerService
 /////////////////////////////////////////////////////////////////////////////////
 public class MovementWayService: IService{
     public UnityEvent<PointerEventData> OnSettingTarget = new();
+    public UnityEvent OnInterruptingMovementSetting = new();
     
     public static GameObject GetInstance() {
         return _object;
     }
     
-
     public void Initialize() {
         _eventTrigger = GameObject.Find("IndependentCellsTrackerTrigger").GetComponent<IndependentCellsTrackerTrigger>();
         _cellsTracker = GameService.GetService<ICellsTracker>();
@@ -24,21 +25,25 @@ public class MovementWayService: IService{
     }
     
     public void StartMakingWay(PointerEventData data) {
-        Debug.Log("start making wayway");
-        _eventTrigger.gameObject.SetActive(true);
-        _object.SetActive(true);
+        Debug.Log("start making wayw");
         _movementWay.StartMakingWay();
-        _eventTrigger.OnCursorMoveCustom.AddListener(UpdateMovementWay);
-        _eventTrigger.OnClickCustom.AddListener(OnStopMakingWay);
+        _object.SetActive(true);
+        _eventTrigger.gameObject.SetActive(true);
         _cardPosition = _cellsTracker.GetCurrentCellCoordinates();
         PerformCreationFlagSet();
+        _cellsTracker.GetOnCellChange().AddListener(_movementWay.AddPoint);
+        _eventTrigger.OnCursorMoveCustom.AddListener(UpdateMovementWay);
+        _eventTrigger.OnClickCustom.AddListener(OnStopMakingWay);
     }
 
     public void OnStopMakingWay(PointerEventData data = null){
+        _cellsTracker.GetOnCellChange().RemoveListener(_movementWay.AddPoint);
         Debug.Log("stop making way");
         if (_actOnEndflag) {    //  on the correct exit with click at enemy
             data.position = _cardPosition;
             OnSettingTarget.Invoke(data);
+            foreach(var shitchen in _movementWay.Points)
+                Debug.Log(shitchen);
             GameService.GetService<FigureMovementService>().AddMovementWay(_movementWay.Points.ToArray());
             
         }
@@ -47,11 +52,13 @@ public class MovementWayService: IService{
         _eventTrigger.gameObject.SetActive(false);
         _eventTrigger.OnCursorMoveCustom.RemoveListener(UpdateMovementWay);
         _eventTrigger.OnClickCustom.RemoveListener(OnStopMakingWay);
+        _cellsTracker.GetOnOutOfBorder().RemoveListener(CancelMakingWay); 
     }
 
     public void CancelMakingWay() { 
         _actOnEndflag = false;
         OnStopMakingWay();
+        OnInterruptingMovementSetting.Invoke();
     }
 
     public void CancelCreationFlagSet() { 
@@ -60,7 +67,7 @@ public class MovementWayService: IService{
     public void PerformCreationFlagSet() { 
         _actOnEndflag = true;
     }
-    private void UpdateMovementWay(Vector3 eventData){
+    private void UpdateMovementWay(Vector3 eventData){  //  Movement way should `have started to listen cells tracker on this call
         //Debug.Log("update way");
         _cellsTracker.CalcuateCurrentCell(_mouseTracker.TrackMouse(eventData));
     }
@@ -79,33 +86,3 @@ public class MovementWayService: IService{
     private const float _zPointOfCellsMatrix = 90f;
     private bool _actOnEndflag = false;
 }
-//    public UnityEvent OnSettingTarget;
-
-//    public static GameObject GetInstance() {
-//        return _instance;
-//    }
-
-//    void Start() {
-//        _eventTrigger = GameObject.Find("IndependentCellsTrackerTrigger").GetComponent<IndependentCellsTrackerTrigger>();
-//        _movementWay = GetComponent<MovementWay>();
-//        _eventTrigger.gameObject.SetActive(false);
-//        _movementWay.gameObject.SetActive(false);
-//        _instance = this.transform.gameObject;
-//    }
-    
-//    public void StartMakingWay(GameObject draggedCard) {
-//        _eventTrigger.gameObject.SetActive(true);
-//        _movementWay.gameObject.SetActive(true);
-//        _movementWay.StartMakingWay(ref draggedCard);
-//        _eventTrigger.OnClickCustom.AddListener(OnStopMakingWay);
-//    }
-
-//    public void OnStopMakingWay(PointerEventData data){
-//        _movementWay.Reset();    
-//        _movementWay.gameObject.SetActive(false);
-//        _eventTrigger.gameObject.SetActive(false);
-//    }
-//    static GameObject _instance;
-//    IndependentCellsTrackerTrigger _eventTrigger;
-//    MovementWay _movementWay;
-//}

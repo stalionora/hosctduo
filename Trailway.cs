@@ -1,6 +1,7 @@
 // 
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 /// ////////////////////////////////////////////////////
 //It is points, through which the figure can be dragged
 //should be child of background
@@ -18,6 +19,7 @@ public class Trailway : MonoBehaviour
         _cellsMatrixData.FieldRectSize = new Vector3[4];
         _parentRect = GameObject.Find(_cellsMatrixData.ParentCanvas).GetComponent<RectTransform>();
         _parentRect.GetWorldCorners(_cellsMatrixData.FieldRectSize);
+        
         //for (int i = 0; i < 4; ++i){
         //    //    _cellsMatrixData.FieldRectSize[i] *= GameObject.Find("Canvas").GetComponent<RectTransform>().localScale.x; 
         //    Debug.Log($"Center #{i + 1} have coordinates {_cellsMatrixData.FieldRectSize[i]}");

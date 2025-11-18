@@ -2,6 +2,7 @@
 //  check newPosition separately from cellstracker and make backlight on that cell
 //  Depending only on icellstracker and cellsatrixdata
 
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -17,30 +18,17 @@ public class PositionIndicator: ReusableObject
     public void Initialize(Vector3? firstCellsCoordinates = null)
     {
         _cellsTracker = GameService.GetService<ICellsTracker>();
-        ActivateTracking(null);
         Hide();
+        
         //GetComponent<SpriteRenderer>().drawMode = SpriteDrawMode.Sliced;
         //GetComponent<SpriteRenderer>().size = new Vector2(CellsMatrixData.CellSize.x, CellsMatrixData.CellSize.y);
     }
-    public void ActivateTracking() {
-        _cellsTracker.GetOnCellChange().AddListener(ChangeCurrentPosition);
-        _cellsTracker.GetOnOutOfBorder().AddListener(Hide);
-        _cellsTracker.GetOnOutOfBorder().AddListener(WaitForCellsTracker);
-    }
-    public void ActivateTracking(GameObject useless) {
-        _cellsTracker.GetOnCellChange().AddListener(ChangeCurrentPosition);
-        _cellsTracker.GetOnOutOfBorder().AddListener(Hide);
-        _cellsTracker.GetOnOutOfBorder().AddListener(WaitForCellsTracker);
+    public void ActivateTracking(){
+        _prefab.SetActive(true);
     }
     public void DeactivateTracking() {
-        _cellsTracker.GetOnCellChange().RemoveListener(ChangeCurrentPosition);
-        _cellsTracker.GetOnOutOfBorder().RemoveListener(Hide);
-        _cellsTracker.GetOnOutOfBorder().RemoveListener(WaitForCellsTracker);
-        _cellsTracker.GetOnCellChange().RemoveListener(Reset);
+        
         _prefab.SetActive(false);
-    }
-    public void DeactivateTracking(GameObject useless) {
-        DeactivateTracking();
     }
 
     public void Hide() {    // -> waitforcellstracker 
@@ -52,12 +40,12 @@ public class PositionIndicator: ReusableObject
         WaitForCellsTracker();
     }
 
-    private void ChangeCurrentPosition(Vector3 newPosition)
+    public void ChangeCurrentPosition(Vector3 newPosition)
     {
         _prefab.transform.position = newPosition;
     }
 
-    private void Reset(Vector3 boundPosition)
+    public void Reset(Vector3 boundPosition)
     {
         if (_prefab.activeSelf)
             return;
@@ -67,9 +55,10 @@ public class PositionIndicator: ReusableObject
         _cellsTracker.GetOnCellChange().RemoveListener(Reset);
     }
 
-    private void WaitForCellsTracker() {
+    public void WaitForCellsTracker() {
         _cellsTracker.GetOnCellChange().AddListener(Reset);
     }
+
 
 
     //  realization

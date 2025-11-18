@@ -70,11 +70,9 @@ public class CellsTrackerService : IService, ICellsTracker
                 if ((pointOnCanvas.y >= _cellsMatrixData.TrailwayCentersOfCells[0][0].y - _cellsMatrixData.CellSize.y / 2) && (pointOnCanvas.y < _cellsMatrixData.TrailwayCentersOfCells[_cellsMatrixData.Height - 1][_cellsMatrixData.Width - 1].y + _cellsMatrixData.CellSize.y / 2))
                 {
                     OnReturnInBorder.Invoke();
-                    var coordinateByY = pointOnCanvas.y - _cellsMatrixData.TrailwayCentersOfCells[0][0].y;
-                    var coordinateByX = pointOnCanvas.x - _cellsMatrixData.TrailwayCentersOfCells[0][0].x;
                     _lastNumberOfCell = _number;
                     _lastPointOnCanvas = pointOnCanvas;
-                    _number = Mathf.FloorToInt((coordinateByX + _cellsMatrixData.CellSize.x / 2) / _cellsMatrixData.CellSize.x) + Mathf.FloorToInt((coordinateByY + _cellsMatrixData.CellSize.y / 2) / _cellsMatrixData.CellSize.y) * _cellsMatrixData.Width;  //  calculating 
+                    _number = CalculateCellByPoint(pointOnCanvas);
                     CalculateCurrentCoordinates();
                     if (_number != _lastNumberOfCell)
                         OnCellChange.Invoke(_currentMatrixPosition);
@@ -89,6 +87,15 @@ public class CellsTrackerService : IService, ICellsTracker
         }
     }
 
+    public int CalculateCellByPoint(Vector3 pointOnCanvas) {
+        return Mathf.FloorToInt((pointOnCanvas.x - _cellsMatrixData.TrailwayCentersOfCells[0][0].x + _cellsMatrixData.CellSize.x / 2) / _cellsMatrixData.CellSize.x) + Mathf.FloorToInt((pointOnCanvas.y - _cellsMatrixData.TrailwayCentersOfCells[0][0].y + _cellsMatrixData.CellSize.y / 2) / _cellsMatrixData.CellSize.y) * _cellsMatrixData.Width;  //  calculating 
+    }
+
+    public Vector3 GetPointByCellNumber(int number) {
+        if (number >= 0 && number < _cellsMatrixData.Width * _cellsMatrixData.Height)
+            return _currentMatrixPosition = _cellsMatrixData.TrailwayCentersOfCells[number / _cellsMatrixData.Width][(number % _cellsMatrixData.Width)];
+        else return new Vector3(float.NaN, float.NaN, float.NaN);
+    }
     ////////////////////////////////////////////////////////////////////////
     //  realization
     private void CalculateCurrentCoordinates()  //
@@ -98,7 +105,7 @@ public class CellsTrackerService : IService, ICellsTracker
         //Debug.Log($"{_number / (_cellsMatrixData.Width)} and  {_number % _cellsMatrixData.Width}");
         if (_number >=0 && _number < _cellsMatrixData.Width * _cellsMatrixData.Height)
             _currentMatrixPosition = _cellsMatrixData.TrailwayCentersOfCells[_number / _cellsMatrixData.Width][(_number % _cellsMatrixData.Width)];
-        Debug.Log(_currentMatrixPosition);
+        //Debug.Log(_currentMatrixPosition);
     }
     private void ReturnInBorder() {
         _isOutOfBorder = false;

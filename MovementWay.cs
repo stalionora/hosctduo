@@ -92,14 +92,16 @@ public class MovementWay : MonoBehaviour{
     {
         //_rectScaler = draggedCard.GetComponentInParent<RectTransform>().localScale;
         //enabled = true;
-        _cellsTracker.GetOnCellChange().AddListener(AddPoint);
+        
         _points.Add(_cellsTracker.GetCurrentCellCoordinates());
+        Debug.Log($"points count at the first add call in movement way = {_points.Count}");
         _lastPoint = _points[0];
     }
 
     //  
     public void Reset()
     {
+        //_cellsTracker.GetOnCellChange().RemoveListener(AddPoint);
         _mesh.triangles = new int[0];
         _mesh.vertices = new Vector3[0];
         _mesh.RecalculateBounds();
@@ -108,11 +110,9 @@ public class MovementWay : MonoBehaviour{
         _points.Clear();
         _trianglesOrder.Clear();
         _lastPoint = new Vector3();
-        _cellsTracker.GetOnCellChange().RemoveListener(AddPoint);
         enabled = false;
         _horizontalMultiplier = 0f;
         _verticalMultiplier = 0f;
-
     }
 
     //////////////////////////////////////////////

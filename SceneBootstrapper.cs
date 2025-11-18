@@ -92,53 +92,45 @@ public class SceneBootrstrapper : MonoBehaviour
         
         //  pools creation
         var currentCard = _cardPool.GetPool();
-        FigureDataObserver dataObserver; 
+        CardDataObserver dataObserver; 
         CardDragHandler dragHandler; 
         
+        _playersHand.Cards = _cardPool.GetPool();
         ////////////////////////////////////////////////////////
         //  SETTING UP CARDS
-        //  - fabric calling
-        //  - 
+        //  - fabric call
+        //  - event logic
         //  -
         //  -
+        //GameStatesSwitcher stageSwitcher = new GameStatesSwitcher(tempCellsTracker, GameService.GetService<CardMovementService>(), GameService.GetService<MovementWayService>(), _figurePlacer, GameService.GetService<FigureMovementService>(), positionIndicator);
+        FSMController cardRelatedStatesController = new FSMController(GameService.GetService<ICellsTracker>(), GameService.GetService<CardMovementService>(), GameService.GetService<MovementWayService>(), _figurePlacer, GameService.GetService<FigureMovementService>(), positionIndicator);
         for (int i = 0; i < _cardPool.Size; ++i){
             currentCard[i] = cardFabric.Create(new Vector3());
             if (currentCard == null)
                 Debug.LogError($"Card #{i} is null");
-            //  events which depending from actual cards
-            dataObserver = currentCard[i].GetComponent<FigureDataObserver>();
-            dragHandler = currentCard[i].GetComponent<CardDragHandler>();
+
+            /////////
+            //  event stages bind
+            //stageSwitcher.EnterCardDragDetectingState(currentCard[i].GetComponent<CardDragHandler>());
             
-            dragHandler.OnCardDragEnd.AddListener(positionIndicator.WaitActivationFromEvent);    //  indicator
-            movementWayService.OnSettingTarget.AddListener(positionIndicator.WaitActivationFromEvent);  //  on finishing movement way of figure   
-            dataObserver.OnPushingData.AddListener(positionIndicator.DeactivateTracking);            
-            _figurePlacer.OnEndSwitching.AddListener(positionIndicator.ActivateTracking);
-
-            dataObserver.OnPushingData.AddListener(_figurePlacer.SwitchCardToFigure);            //  listening figure data observer from distributor
-            dragHandler.OnCardDragEnd.AddListener(movementWayService.StartMakingWay);           //  from making line service to set the way of figures moving 
-            dragHandler.OnCardDragStart.AddListener(dataObserver.ActivateObservingFunctioin);    //  
-            movementWayService.OnSettingTarget.AddListener(dataObserver.DeactivateObservingFunction);
-
-            GameService.GetService<ICellsTracker>().GetOnOutOfBorder().AddListener(movementWayService.CancelMakingWay);
+            cardRelatedStatesController.SetSwitchOrder(currentCard[i].GetComponent<CardDragHandler>(), currentCard[i].GetComponent<CardDataObserver>());
             currentCard[i].name = $"Card #{i}";
-            
+            // <--------------------------------------------------------------------------------------
             //  figures
             _figurePool.GetPool()[i] = figureFabric.Create(new Vector3());
             _figurePool.GetPool()[i].name = $"Figure #{i}";
         }
-        
-        _playersHand.Cards = _cardPool.GetPool();
+        ////////
+        //  events independent from current card
         
         //Timer
         GameService.Register<TimerMock>(new TimerMock()).Initialize();
         GameService.GetService<TimerMock>().OnEverySecond.AddListener(GameObject.Find("Timer").GetComponentInChildren<TimerRepresentation>().OnUpdateNumber);
         GameService.GetService<TimerMock>().OnTurnEnd.AddListener(GameObject.Find("EndTurnMessage").GetComponentInChildren<EndMessage>().ChangeMessage);
         GameService.GetService<TimerMock>().OnTurnEnd.AddListener(GameService.GetService<FigureMovementService>().PerformOnTurnEnd);
+        ////////
         
-        //
-        _figurePlacer.OnEndSwitching.AddListener(GameService.GetService<FigureMovementService>().AddFigure);
-        
-        //  figures mechanics
+        //  
         Debug.Log("Cards distributing");
         _dealer.DistributeCards(_cardPool.GetPool());
         

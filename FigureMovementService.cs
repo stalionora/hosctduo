@@ -21,7 +21,7 @@ public class FigureMovementService : IService, ITurnBaseLogic {
         _points.Add(new Vector3[_spaceInPointsArray]);
         var currentPointsIndex = _points.Count() - 1;
         Array.Copy(points, 0L, _points[currentPointsIndex], 0, points.Length);
-        for (int i = points.Count() - 1; i < _spaceInPointsArray; ++i)  //  filling array with invalid numbers
+        for (int i = points.Length; i < _spaceInPointsArray; ++i)  //  filling array with invalid numbers
             _points[currentPointsIndex][i] = _outOfPointsRange;
         _points[currentPointsIndex][0] = _outOfPointsRange; //  removins first element, which have been used in making way representation
         for (int j = 0; j < _spaceInPointsArray - 2; ++j)   //  SHIFT
@@ -34,7 +34,6 @@ public void PerformOnTurnEnd() {
         Debug.Log($"points count = {_points.Count}");
 
         for (int i = 0; i < _figures.Count; ++i) {
-        Debug.Log($"point != out of position");
             if (_points[i][0] != _outOfPointsRange) { 
                 _figures[i].transform.position = _points[i][0];
                 ShiftLeft(i);

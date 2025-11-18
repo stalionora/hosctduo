@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 //////////////////////////
 // Dependent from CellsMatrixData, GameService, each service, should be attached to bootstrapper
 //////////////////////////
@@ -28,6 +29,9 @@ public class ServicesBootstrapper : MonoBehaviour
     public void OnEndCardMovement() { 
 
     }
+    //public void SetDependent(PointerEventData useless) { 
+    //    GameService.GetService<ICellsTracker>().GetOnOutOfBorder.AddListener
+    //}
     //  функция подписки создаваемой карты на startcardmoovement, которая сама подписана на фабрику
 
 }

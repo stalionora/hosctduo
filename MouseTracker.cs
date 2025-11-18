@@ -1,7 +1,5 @@
 using NUnit.Framework;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 ////////////////////////////////////////////////////
 //  trackt mouse position relative to some plane  //
 ////////////////////////////////////////////////////

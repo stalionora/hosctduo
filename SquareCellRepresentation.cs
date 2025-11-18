@@ -9,7 +9,7 @@ namespace Representation
         private Sprite cellsSprite;
         [SerializeField]
         private CellsMatrixData cellsMatrixData;
-
+        
         public void PlaceCellOnPoint(Vector3 point)
         {
             _collection[counter++].transform.position = point;
@@ -29,9 +29,10 @@ namespace Representation
                 var sprite = _collection[i].AddComponent<SpriteRenderer>();
                 sprite.sortingLayerID = sortingLayerId;
                 sprite.sortingOrder = 1;
-
-                sprite.color = new Color(0f, 1f, 1f, 1f);
+                sprite.drawMode = SpriteDrawMode.Sliced; // allows resizing
                 //sprite.size = new Vector2(cellsMatrixData.CellSize.x, cellsMatrixData.CellSize.y);    //makes nothings
+
+                sprite.color = new Color(1f, 1f, 1f, 0.3f);
                 sprite.sprite = cellsSprite;
                 //_collection[i] = Sprite.Create(cellsSprite.texture, new Rect(), new Vector2());
                 //_collection[i] = GameObject.CreatePrimitive(PrimitiveType.Plane);

@@ -35,7 +35,6 @@ public class CardFabric: IFabric {
 			dragHandler = new CardDragHandler();
 		}
 		//var movementHandler = newCard.AddComponent<CardMovementService>();
-		dragHandler.Initialize();
 		newCard.SetActive(false);
         return newCard;
 	}

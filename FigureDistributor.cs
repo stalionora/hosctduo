@@ -74,8 +74,7 @@ public class FigureDistributor
 
         //_figure.transform.position = GameService.GetService<ICellsTracker>().GetCurrentCellCoordinates(); //  = position of card
         var cellsTracker = GameService.GetService<ICellsTracker>();
-        cellsTracker.CalcuateCurrentCell(newCurrentCard.transform.position);
-        _figure.transform.position = cellsTracker.GetCurrentCellCoordinates(); //  = position of card
+        _figure.transform.position = cellsTracker.GetPointByCellNumber(cellsTracker.CalculateCellByPoint(newCurrentCard.transform.position)); //  = position of card
 
         _cardPool.ReturnObject(newCurrentCard);
         _figure.SetActive(true);
