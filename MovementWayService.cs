@@ -25,7 +25,7 @@ public class MovementWayService: IService{
     }
     
     public void StartMakingWay(PointerEventData data) {
-        Debug.Log("start making wayw");
+        Debug.Log("start making way");
         _movementWay.StartMakingWay();
         _object.SetActive(true);
         _eventTrigger.gameObject.SetActive(true);

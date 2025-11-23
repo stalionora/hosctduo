@@ -39,12 +39,11 @@ public class MovementWay : MonoBehaviour{
     public void SetTriangles()
     {   //  final
     }
-    public void AddPoint(Vector3 newPoint)
-    {
-        Debug.Log($"point from cells tracker is equal to: {newPoint}");
+
+    public void AddPoint(Vector3 newPoint){
+        //Debug.Log($"point from cells tracker is equal to: {newPoint}");
         //newPoint.x /= transform.localScale.x;
         //newPoint.y /= transform.localScale.y;
-        Debug.LogFormat($"_rectScaler = {_rectScaler}");
         _points.Add(newPoint);
         //if (_points.Count < 2)
         //{
@@ -60,7 +59,6 @@ public class MovementWay : MonoBehaviour{
         _verticalMultiplier = _majorLineMultiplier.normalized.x * _halfWidth;
         _majorLineMultiplier.x /= 2f;
         _majorLineMultiplier.y /= 2f;
-
         //_cloclwiseVertices.Add(new Vector3(_mid.x + _majorLineMultiplier.x - _horizontalMultiplier, _mid.y - _majorLineMultiplier.y - _verticalMultiplier, newPoint.z - Vector3.one.z));
         //_cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x - _horizontalMultiplier, _mid.y + _majorLineMultiplier.y - _verticalMultiplier, newPoint.z - Vector3.one.z));
         //_cloclwiseVertices.Add(new Vector3(_mid.x - _majorLineMultiplier.x + _horizontalMultiplier, _mid.y + _majorLineMultiplier.y + _verticalMultiplier, newPoint.z - Vector3.one.z));
@@ -75,8 +73,6 @@ public class MovementWay : MonoBehaviour{
         _trianglesOrder.Add(3 + _startingIndex);
         _trianglesOrder.Add(0 + _startingIndex);
         _trianglesOrder.Add(2 + _startingIndex);
-
-
         //  rendering
         _mesh.vertices = _cloclwiseVertices.ToArray();
         _mesh.triangles = _trianglesOrder.ToArray();
@@ -88,11 +84,7 @@ public class MovementWay : MonoBehaviour{
     }
 
     //  managing
-    public void StartMakingWay()
-    {
-        //_rectScaler = draggedCard.GetComponentInParent<RectTransform>().localScale;
-        //enabled = true;
-        
+    public void StartMakingWay(){
         _points.Add(_cellsTracker.GetCurrentCellCoordinates());
         Debug.Log($"points count at the first add call in movement way = {_points.Count}");
         _lastPoint = _points[0];
@@ -124,7 +116,6 @@ public class MovementWay : MonoBehaviour{
     private Vector3 _lastPoint = new();
     private Vector3 _mid = new();
     private Vector3 _majorLineMultiplier = new();
-    private Vector3 _rectScaler = new();
     private List<Vector3> _cloclwiseVertices = new List<Vector3>();
     private List<Vector3> _points = new List<Vector3>();
     private List<int> _trianglesOrder = new List<int>();

@@ -22,6 +22,7 @@ public class CardMovementService: IService, IMovementService
         _canvasPosition = GameObject.Find($"{_cellsMatrix.ParentCanvas}").GetComponent<RectTransform>().position;    //parents canvas transform
          //initialize
          _zPointOnDrag = _cellsMatrix.ZPointOnDrag;
+        Debug.Log($"-------------> ZPOINT ON DRAG = {_zPointOnDrag}");
         _planeOfCanvas.SetNormalAndPosition(Vector3.forward, new Vector3(0, 0, _canvasPosition.z));
         _planeOnDrag.SetNormalAndPosition(Vector3.forward, new Vector3(0, 0, _zPointOnDrag));
         CalculateFructumRatio();
@@ -45,8 +46,10 @@ public class CardMovementService: IService, IMovementService
     //  movement proceeding
     public void OnBeginDrag(PointerEventData eventData)                 //
     {
+        if (_currentCard == null)
+            Debug.LogError("No current card to move");
         //  calculating point of the mouse 
-        //    _lastValidPosition = transform.position;      
+        _originalPosition = _currentCard.transform.position;
         _ray = _mainCamera.ScreenPointToRay(eventData.position);
         //_ray.direction = Vector3.forward;
         if (_planeOfCanvas.Raycast(_ray, out float enterDragPlaneRay) == true)  //  mouse offset calculation

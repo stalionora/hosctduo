@@ -58,8 +58,26 @@ public class PositionIndicator: ReusableObject
     public void WaitForCellsTracker() {
         _cellsTracker.GetOnCellChange().AddListener(Reset);
     }
-
-
+    public void WaitFirstEntrance() { 
+        _cellsTracker.GetOnReturnInBorder().AddListener(StartPosIndication);   //  in case when showed from beginning
+    
+    }
+    private void StartPosIndication()
+    {
+        _cellsTracker.GetOnReturnInBorder().RemoveListener(StartPosIndication);   //  in case when showed from beginning
+        ActivateTracking();
+        _cellsTracker.GetOnCellChange().AddListener(ChangeCurrentPosition);
+        _cellsTracker.GetOnOutOfBorder().AddListener(Hide);
+        _cellsTracker.GetOnOutOfBorder().AddListener(WaitForCellsTracker);
+    }
+    public void EndPosIndication()
+    {
+        DeactivateTracking();
+        _cellsTracker.GetOnCellChange().RemoveListener(ChangeCurrentPosition);
+        _cellsTracker.GetOnOutOfBorder().RemoveListener(Hide);
+        _cellsTracker.GetOnOutOfBorder().RemoveListener(WaitForCellsTracker);
+        _cellsTracker.GetOnCellChange().RemoveListener(Reset);
+    }
 
     //  realization
     private ICellsTracker _cellsTracker;

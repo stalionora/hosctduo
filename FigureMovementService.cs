@@ -24,35 +24,36 @@ public class FigureMovementService : IService, ITurnBaseLogic {
         for (int i = points.Length; i < _spaceInPointsArray; ++i)  //  filling array with invalid numbers
             _points[currentPointsIndex][i] = _outOfPointsRange;
         _points[currentPointsIndex][0] = _outOfPointsRange; //  removins first element, which have been used in making way representation
-        for (int j = 0; j < _spaceInPointsArray - 2; ++j)   //  SHIFT
-            _points[currentPointsIndex][j] = _points[_points.Count() - 1][j + 1];
+        for (int i = 0; i < _spaceInPointsArray - 2; ++i)   //  SHIFT
+            _points[currentPointsIndex][i] = _points[_points.Count() - 1][i + 1];
 
     }
 public void PerformOnTurnEnd() {
         Debug.Log("End of turn");
         Debug.Log($"Figures count = {_figures.Count}");
         Debug.Log($"points count = {_points.Count}");
-
         for (int i = 0; i < _figures.Count; ++i) {
             if (_points[i][0] != _outOfPointsRange) { 
                 _figures[i].transform.position = _points[i][0];
-                ShiftLeft(i);
+                ShiftSegmentLeft(i);
             }
             else{
-                _figures.RemoveAt(i);
-                _points.RemoveAt(i);
+                DeleteFigure(i);
+                --i;    //  to compensate remove of object
             }
         }
-
     }
 
-    private void ShiftLeft(int pointsI)
-    {
+    private void ShiftSegmentLeft(int pointsIter){
         for (int j = 0; j < _spaceInPointsArray - 2; ++j)
 
-            _points[pointsI][j] = _points[pointsI][j + 1];
+            _points[pointsIter][j] = _points[pointsIter][j + 1];
 
-        _points[pointsI][_spaceInPointsArray - 1] = _outOfPointsRange;
+        _points[pointsIter][_spaceInPointsArray - 1] = _outOfPointsRange;
+    }
+    private void DeleteFigure(int pos) { 
+        _figures.RemoveAt(pos);
+        _points.RemoveAt(pos);
     }
     //
     private List<GameObject> _figures = new List<GameObject>();   //  without fixed limit of figures on field
@@ -60,8 +61,6 @@ public void PerformOnTurnEnd() {
     private CellsMatrixData _cellsMatrix;
     private Vector3 _outOfPointsRange = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-    private int _limitOnField = 0;   //  limit of figures on field
-    private int _turnCounter;
     private int _spaceInPointsArray;
     //
     //

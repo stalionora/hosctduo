@@ -20,15 +20,16 @@ namespace Representation
 
             _collection = new GameObject[amount];
             var rotation = new Vector3(0, 0, 0);
-            var parent = GameObject.Find("TrailwaysRepresentation");
-            var sortingLayerId = parent.GetComponent<SortingGroup>().sortingLayerID;
+            var sortingLayerId = GetComponent<SortingGroup>().sortingLayerID;
+            //var layer = _collection[sortingLayerId];
             for (int i = 0; i < amount; ++i)
             {
                 _collection[i] = new GameObject();
-                _collection[i].transform.SetParent(parent.transform);
+                _collection[i].transform.SetParent(transform);
                 var sprite = _collection[i].AddComponent<SpriteRenderer>();
                 sprite.sortingLayerID = sortingLayerId;
-                sprite.sortingOrder = 1;
+                //sprite.sortingLayerName = sortingLayerId;
+                //sprite.sortingOrder = 1;
                 sprite.drawMode = SpriteDrawMode.Sliced; // allows resizing
                 //sprite.size = new Vector2(cellsMatrixData.CellSize.x, cellsMatrixData.CellSize.y);    //makes nothings
 

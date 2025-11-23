@@ -9,7 +9,7 @@ public class SceneBootrstrapper : MonoBehaviour
 {
     //  Scriptable _objects
     [SerializeField]
-    private CardSize CardSize;  
+    private CardSize CardSize;
     [SerializeField]
     private CellsMatrixData CellsMatrix;
     [SerializeField]
@@ -92,8 +92,6 @@ public class SceneBootrstrapper : MonoBehaviour
         
         //  pools creation
         var currentCard = _cardPool.GetPool();
-        CardDataObserver dataObserver; 
-        CardDragHandler dragHandler; 
         
         _playersHand.Cards = _cardPool.GetPool();
         ////////////////////////////////////////////////////////
@@ -103,7 +101,7 @@ public class SceneBootrstrapper : MonoBehaviour
         //  -
         //  -
         //GameStatesSwitcher stageSwitcher = new GameStatesSwitcher(tempCellsTracker, GameService.GetService<CardMovementService>(), GameService.GetService<MovementWayService>(), _figurePlacer, GameService.GetService<FigureMovementService>(), positionIndicator);
-        FSMController cardRelatedStatesController = new FSMController(GameService.GetService<ICellsTracker>(), GameService.GetService<CardMovementService>(), GameService.GetService<MovementWayService>(), _figurePlacer, GameService.GetService<FigureMovementService>(), positionIndicator);
+        CardFuncController cardRelatedStatesController = new CardFuncController(GameService.GetService<ICellsTracker>(), GameService.GetService<CardMovementService>(), GameService.GetService<MovementWayService>(), _figurePlacer, GameService.GetService<FigureMovementService>(), positionIndicator);
         for (int i = 0; i < _cardPool.Size; ++i){
             currentCard[i] = cardFabric.Create(new Vector3());
             if (currentCard == null)
@@ -113,7 +111,7 @@ public class SceneBootrstrapper : MonoBehaviour
             //  event stages bind
             //stageSwitcher.EnterCardDragDetectingState(currentCard[i].GetComponent<CardDragHandler>());
             
-            cardRelatedStatesController.SetSwitchOrder(currentCard[i].GetComponent<CardDragHandler>(), currentCard[i].GetComponent<CardDataObserver>());
+            cardRelatedStatesController.SetSwitchingRuleOfExecutionForCurrentCard(currentCard[i].GetComponent<CardDragHandler>());
             currentCard[i].name = $"Card #{i}";
             // <--------------------------------------------------------------------------------------
             //  figures
@@ -122,7 +120,7 @@ public class SceneBootrstrapper : MonoBehaviour
         }
         ////////
         //  events independent from current card
-        
+
         //Timer
         GameService.Register<TimerMock>(new TimerMock()).Initialize();
         GameService.GetService<TimerMock>().OnEverySecond.AddListener(GameObject.Find("Timer").GetComponentInChildren<TimerRepresentation>().OnUpdateNumber);

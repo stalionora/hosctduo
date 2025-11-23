@@ -14,17 +14,12 @@ public class Trailway : MonoBehaviour
 
     //public RectTransform Rectangle { get { return _rectangle; } }
     /////////////////////////////////////////////////////////////////////////////////////////////
-    private void Awake() // receiving 
-    {
+    private void Awake(){
         _cellsMatrixData.FieldRectSize = new Vector3[4];
         _parentRect = GameObject.Find(_cellsMatrixData.ParentCanvas).GetComponent<RectTransform>();
         _parentRect.GetWorldCorners(_cellsMatrixData.FieldRectSize);
-        
-        //for (int i = 0; i < 4; ++i){
-        //    //    _cellsMatrixData.FieldRectSize[i] *= GameObject.Find("Canvas").GetComponent<RectTransform>().localScale.x; 
-        //    Debug.Log($"Center #{i + 1} have coordinates {_cellsMatrixData.FieldRectSize[i]}");
-        //}
-}
+    }
+
     public void Initialize()
     {
         _cellsMatrixData.TrailwayCentersOfCells = new Vector3[_cellsMatrixData.Height][];
@@ -44,22 +39,16 @@ public class Trailway : MonoBehaviour
         //        Debug.Log($"Cells matrix data Trailway[{y}][{i}]= {_cellsMatrixData.TrailwayCentersOfCells[y][i]}");
     }
 
-
     //
-    private void DistributePlace(float startPointX, float startPointY, float widthDistance, float heightDistance, Action<Vector3> DebugRepresentation = null)    //uses distance between points
-    {
+    private void DistributePlace(float startPointX, float startPointY, float widthDistance, float heightDistance, Action<Vector3> DebugRepresentation = null){
         //foreach (var corner in _rectGroundParent) 
         //    Debug.Log($"{corner}");
-        for (int y = 0; y < _cellsMatrixData.Height; ++y) 
-        {
-            for (int i = 0; i < _cellsMatrixData.Width; ++i)
-            {
+        for (int y = 0; y < _cellsMatrixData.Height; ++y) {
+            for (int i = 0; i < _cellsMatrixData.Width; ++i){
                 // distance is > 0?
                 _cellsMatrixData.TrailwayCentersOfCells[y][i] = new Vector3 (widthDistance * (i) + startPointX + _cellsMatrixData.SpacingHorizontal * i, heightDistance * (y) + startPointY + _cellsMatrixData.SpacingVertical * y, _cellsMatrixData.FieldRectSize[0].z);
-                //_parentRect.TransformPoint(_cellsMatrixData.TrailwayCentersOfCells[y][i]);
                 Debug.Log($" Cell #{y * _cellsMatrixData.Width + i + 1} have coordinates {_cellsMatrixData.TrailwayCentersOfCells[y][i]}");
             }
-            //Debug.Log($"ֲûסמעא סעמכבצא = {_cellsMatrixData.TrailwayCentersOfCells[y].Length}");
         }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////

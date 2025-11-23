@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Rendering;
 ////////////////////////////////////////////////////////////////////////
 // dependent from cellsMatrixData
 // provides current cell of trailground, which places under the cursor 
@@ -108,13 +107,11 @@ public class CellsTrackerService : IService, ICellsTracker
         //Debug.Log(_currentMatrixPosition);
     }
     private void ReturnInBorder() {
-        _isOutOfBorder = false;
         OnOutOfBorder.AddListener(OutOfBorder);
         OnReturnInBorder.RemoveListener(ReturnInBorder);
 
     }
     private void OutOfBorder() { 
-        _isOutOfBorder = true;
         _number = _lastNumberOfCell + 31;
         OnReturnInBorder.AddListener(ReturnInBorder);
         OnOutOfBorder.RemoveListener(OutOfBorder);
@@ -124,7 +121,6 @@ public class CellsTrackerService : IService, ICellsTracker
     //fields
     private int _number = 0;
     private int _lastNumberOfCell = 0;
-    private bool _isOutOfBorder = false;
 
     //fields which only presenting trailways values
     private Vector3 _currentMatrixPosition;
