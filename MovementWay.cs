@@ -14,7 +14,7 @@ public class MovementWay : MonoBehaviour{
     {
         enabled = false;
     }
-    public void Initialize(CellsMatrixData cellsMatrixData, GameObject prefab, Transform parentCanvas, Material shader)
+    public void Initialize(CellsMatrixData cellsMatrixData, GameObject prefab, Transform parentCanvas, Shader shader)
     {
 
         _cellsTracker = GameService.GetService<ICellsTracker>();
@@ -23,6 +23,7 @@ public class MovementWay : MonoBehaviour{
         this.transform.gameObject.name = "MovementWay";
         _mesh = new Mesh();
         var renderer = GetComponent<MeshRenderer>();
+       
         renderer.material = new Material(shader);
         renderer.material.color = Color.gray;
         enabled = false;

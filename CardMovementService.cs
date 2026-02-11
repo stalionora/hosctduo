@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 // depending from trailway model, GameService, ICellsTracker, CellsMatrixData, MovementWayService
@@ -11,7 +12,7 @@ public class CardMovementService: IService, IMovementService
                                                            //high of card while dragging
                                                            //use only for plane on drag
                                                            //or .z
-    
+    public UnityEvent OnInterruptingMovement = new UnityEvent();
     public CardMovementService(CellsMatrixData cellsMatrix){
         _cellsMatrix = cellsMatrix;
     }
@@ -89,6 +90,7 @@ public class CardMovementService: IService, IMovementService
             ReturnLastCardInTheHand();
         else
         {
+            OnInterruptingMovement.Invoke();
             _currentCard.transform.position = _cellsTracker.GetCurrentCellCoordinates();
             //  !!!!!!! not optimized
             //_currentCard.gameObject.transform.position = _mouseTracker.PerspectivePointTranslation(_cellsTracker.GetCurrentCellCoordinates(), new Plane(Vector3.back, _zPointOnDrag));

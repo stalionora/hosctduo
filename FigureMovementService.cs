@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class FigureMovementService : IService, ITurnBaseLogic {
+    public UnityEvent<Figure> OnEndOfWay = new();
     public FigureMovementService(CellsMatrixData cellsMatrix) {
         _cellsMatrix = cellsMatrix;
     }
@@ -32,13 +34,16 @@ public void PerformOnTurnEnd() {
         Debug.Log("End of turn");
         Debug.Log($"Figures count = {_figures.Count}");
         Debug.Log($"points count = {_points.Count}");
-        for (int i = 0; i < _figures.Count; ++i) {
-            if (_points[i][0] != _outOfPointsRange) { 
+        for (int i = 0; i < _figures.Count; ++i)
+        {
+            if (_points[i][0] != _outOfPointsRange) {
                 _figures[i].transform.position = _points[i][0];
+                //_figures[i].transform.Translate(_points[i][0] - _figures[i].transform.position);
                 ShiftSegmentLeft(i);
             }
             else{
-                DeleteFigure(i);
+                OnEndOfWay.Invoke(_figures[i].GetComponent<Figure>());
+                DeleteFigureFromList(i);
                 --i;    //  to compensate remove of object
             }
         }
@@ -51,7 +56,7 @@ public void PerformOnTurnEnd() {
 
         _points[pointsIter][_spaceInPointsArray - 1] = _outOfPointsRange;
     }
-    private void DeleteFigure(int pos) { 
+    private void DeleteFigureFromList(int pos) { 
         _figures.RemoveAt(pos);
         _points.RemoveAt(pos);
     }
@@ -62,9 +67,4 @@ public void PerformOnTurnEnd() {
     private Vector3 _outOfPointsRange = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
     private int _spaceInPointsArray;
-    //
-    //
-    //
-
-
 }

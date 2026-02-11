@@ -1,4 +1,3 @@
-// 
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -55,4 +54,4 @@ public class Trailway : MonoBehaviour
     
     private RectTransform _parentRect;
     //private GameObject[] _imagesConcept = new GameObject[_amount * (_amount + 1)];
-};
+}
